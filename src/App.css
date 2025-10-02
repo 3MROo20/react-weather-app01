@@ -7,7 +7,7 @@ body {
 	justify-content: center;
 	font-family: 'Roboto', sans-serif;
 	font-weight: 100;
-	font-size: clamp(2rem, 2rem + 3vw, 4.5rem);  /* 4rem */
+	font-size: clamp(2rem, 2rem + 3vw, 5rem);  /* 4rem */
 	font-weight: 100;
 	font-style: italic;
 	background-color: #444;
@@ -66,6 +66,7 @@ button:hover {
 	box-shadow: 0 0 1rem 0 blue;
 }
 
+	
 .searchBtn {
 	grid-column: 1 / 4;
 	grid-row: 2;
@@ -170,6 +171,4 @@ input {
 	0% { transform: translateX(0); }
 	45% { transform: translateX(-600px) scaleX(-1); }
 }
-
-
 
