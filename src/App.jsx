@@ -227,7 +227,7 @@ function APIcard() {
 		return (
 			<>
 			<div className="bg-gray-100 opacity-80 max-w-md max-w-auto h-34 sm:h-42 
-		md:h-50 lg:h-54 transition col-span-3 rounded-2xl text-center 
+		md:h-44 lg:h-54 transition col-span-3 rounded-2xl text-center 
 		overflow-hidden flex row-start-3 self-start px-2">
 <p className="self-center text-sm sm:text-base md:text-lg
 	lg:text-xl">{quote.quote}
