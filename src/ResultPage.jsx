@@ -156,7 +156,8 @@ function TimeCard() {
         <span className='tracking-wide'>Sat/Oct 18</span> <br/>
         11:10  PM</p>
         <p className='font-poppins font-light text-size text-shadow justify-self-start
-        row-start-3 pl-8 pb-6 tracking-wide'>
+        row-start-3 pl-8 pb-6 tracking-wide
+        '>
         <span className='font-semibold'>Tip</span>: carry sunscreen!</p>
         <img src={skyScrapper} alt='skyScrapper icon'
         className='row-start-3 justify-self-end size-36 pb-6'/>
