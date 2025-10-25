@@ -91,6 +91,7 @@ function ToSearch() {
 	const [grow, setGrow] = useState(false);
 	const [input, setInput] = useState("");
 	const [visible, setVisible] = useState(false);
+	const [clicked, setClicked] = useState(false);
 
 	function handleClick() {
  		setGrow(true);
@@ -137,13 +138,14 @@ function ToSearch() {
 		  transition: 'all 1.5s ease',
 		}}>{svg} {grow && <input style={{opacity: visible ? "1" : "0"}} 
 			value={input} onChange={(e) => setInput(e.target.value)} 
-			type="text" placeholder="Search"/>}</button>   
+			type="text" placeholder="Search" onClick={() => setClicked(!clicked)}/>}
+			</button>   
 
 		 {/*Placeholder part*/}
-		<div className="P-container" style={{ width: grow && '0.1px'}}>
+		<div className="P-container" style={{ width: grow && '0'}}>
 			<p className="PHolder" style={{ display: grow && 'none'}}>
 			Enter a city name</p></div>
-			<ToNavigate grow={grow} />
+			<ToNavigate grow={grow} clicked={clicked} /> {/*only one is enough*/}
 		</div>
 	);
 }
@@ -194,16 +196,90 @@ function TheTree() {
 // }
 
 function APIcard() {
-			const [quote, setQuote] = useState(null);
-			const [next, setNext] = useState(false);
+			// const [quote, setQuote] = useState(null); // belongs to API refrence 
+			// const [next, setNext] = useState(false);
+			const items = ['Cloudy', 'Rainy', 'Sunny', 'Snowy', 'Foggy', 'Windy'];
+			const [index, setIndex] = useState(0);
+			const [info, setInfo] = useState(null);
 
+
+		const handleClick = () => {
+		setIndex(Math.floor(Math.random() * items.length));
+		}
+		
 		useEffect(() => {
-				let switcher;	
+
+	fetch('https://v2.jokeapi.dev/joke/Any')
+		.then(res => res.json())
+		.then(data => {
+			setInfo(data);
+		})
+		.catch(err => {
+			console.error('Sorry:', err);
+		})		
+
+		}, [])
+
+		if(!info) return <p className='text-3xl'>Waiting...</p>
+
+			
+		return (
+			<> 
+<div className="bg-[linear-gradient(to_left,#FFFFFF00_20%,#FFFFFF_45%)]
+				opacity-80 rounded-2xl sm:rounded-3xl 
+				text-center overflow-hidden w-full
+				max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl
+				h-20 sm:h-24 md:h-28 lg:h-32
+				row-start-3 col-start-2 self-end justify-self-center
+		 		px-4 sm:px-6 md:px-8 lg:px-10
+		 		py-8 sm:py-10 md:py-12 lg:py-14
+		 		shadow-lg sm:shadow-xl md:shadow-2xl
+		 		hover:shadow-5xl
+				flex justify-center">
+ 	<p className="self-center my-4 sm:my-6 md:my-8 lg:my-y10 
+text-sm sm:text-base md:text-lg
+leading-relaxed sm:leading-loose">{info.joke}</p>
+</div> 				{/*Line height for readability*/}
+<p className='bg-gradient-to-r from-gray-50/100 from-20% to-gray-100/10 to-70% 
+text-center text-3xl row-start-4 rounded-2xl p-4
+self-center justify-self-center ml-14'
+onClick={handleClick}>{items[index]}</p>
+				
+			</>
+	);
+}
+
+	function ToNavigate ({ grow, clicked }) {
+				const navigate = useNavigate(); // to use navigate hook
+
+				useEffect(() => {
+					let naver;
+				if(grow) {
+				 if(clicked) {
+					navigate('/');
+				 }	
+				   else {
+					naver = setTimeout(() => {
+					navigate('/result');
+					}, 2000);
+				   }
+				}
+				return () => clearTimeout(naver);
+				}, [grow, clicked, navigate]);
+		return null;
+} 
+
+
+
+
+//API Refrence modern way
+/* useEffect(() => {
+				// let switcher;	
 
 			const fetchData = async () => {
 					try {
-			const res = await fetch("https://api.api-ninjas.com/v1/quotes", {
-				method: 'Get',
+			const res = await fetch("https://api.api-ninjas.com/v1/facts?limit=" + limit, {
+				method: 'GET',
 				headers: {
 					'X-Api-Key': 'ubDKKf7I6bD1QdKa1xYrdg==qkR4uAnQAFKwNM7V',
 					'Content-Type': 'application/json',
@@ -211,70 +287,53 @@ function APIcard() {
 					});
 			
 		    	const data = await res.json(); 
-		    switcher = setInterval(() => {
-		     setNext(prev => !prev);
-				 }, 10000);
-					setQuote(data[0]); // api returns the array, we take 
+		    // switcher = setTimeout(() => {
+		    //  setNext(prev => !prev);
+			// 	 }, 10000);
+					setQuote(data); // api returns the array, we take 
 																	// first quote, second author
 					} catch (err) {
 						console.error(err);
 					}
 						
 				};
-				
-				fetchData();
-				return () => clearInterval(switcher);
-			}, [next]);
 
-			if (!quote) return <div className="flex justify-start items-center
+				fetchData();
+				// return () => clearTimeout(switcher);
+			}, [quote]);
+
+			if (quote) return <div className="flex justify-start items-center
 				row-start-4"> 
 				<p className="text-base sm:text-md md:text-lg 
-					font-bold transition">Loading...</p></div>
+					font-bold transition">Waiting...</p></div> */
 
-				// const quoteText = next ? quote.quote : '';
-		return (
-			<div className="bg-[linear-gradient(to_left,#FFFFFF00_20%,#FFFFFF_45%)]
-				opacity-80 rounded-2xl sm:rounded-3xl 
-				text-center overflow-hidden
-				max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl
-				h-36 sm:h-40 md:h-44 lg:h-48
-				col-span-3 flex row-start-3 self-center
-		 		px-4 sm:px-6 md:px-8 lg:px-10
-		 		py-8 sm:py-10 md:py-12 lg:py-14
-		 		shadow-lg sm:shadow-xl md:shadow-2xl
-		 		hover:shadow-4xl">
-		 		{/*transition-color duration-1000 ease-in*/}
- 	<p className="self-center my-4 sm:my-6 md:my-8 lg:my-y10 
-text-sm sm:text-base md:text-lg
-leading-relaxed sm:leading-loose">{quote.quote}</p>
-				{/*Line height for readability*/}
-</div>
-	);
-}
+//API Reference old-school clearer to me 
+// useEffect(() => {
+// 	const [quote, setQuote] = useState(null);
 
-	function ToNavigate ({ grow }) {
-				const navigate = useNavigate(); // to use navigate hook
+// 	fetch('https', {
+// 		headers: {
+// 			'x-Api-Key': 'my-API-Key',
+// 			'content-type': 'my-content-type',
+// 		}
+// 	})
+// 	.then(res => res.json())
+// 	.then(data => {
+// 		setQuote(data[0]);
+// 	})
+// 	.catch(err => {
+// 		console.error('Error happened:', err);
+// 	})
+	
+// }, []);
 
-				useEffect(() => {
-					let naver;
-				if(grow) {
-					naver = setTimeout(() => {
-					navigate('/result');
-					}, 2000);
-				}
-				return () => clearTimeout(naver);
-				}, [grow, navigate]);
-		return null;
-} 
+// if(!quote) return <div>Loading...</div>
 
-
-
-
-
-
-
-
-
+// return(
+// 	<div>
+// 		<p>{quote.author}</p>
+// 	</div>
+// )
 
 
 

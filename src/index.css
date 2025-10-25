@@ -27,6 +27,8 @@ body {
 	font-style: italic;
 	background-color: #444;
 	overflow: hidden;
+	margin-top: 3rem;		/*needs to double check*/
+	padding: 0;
 
 }
 

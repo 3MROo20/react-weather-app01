@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import sunIcon from './resultPageAssests/icons/sun.svg';
 import windIcon from './resultPageAssests/icons/Wind.svg';
@@ -7,8 +7,9 @@ import skyScrapper from './resultPageAssests/icons/skyscraper.svg';
 import './index.css';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
+import { Flip } from 'gsap/Flip'; /*This was the problem imagine */
 import SplitType from 'split-type';
-
+    gsap.registerPlugin(Flip, useGSAP);
 
 
 export default function ResultPage() {
@@ -24,8 +25,8 @@ export default function ResultPage() {
 		// the content exceeds the height/width of the container
 		// and the container allows overflow
      <div className='bg-gray-500/20 not-italic
-     	w-full min-w-[600px]
-        h-auto rounded-md sm:rounded-lg md:xl lg:rounded-2xl
+     	w-full min-w-[580px] sm:min-w-[480px] md:min-w-[650px] lg:min-w-[750px]
+        h-[1100px] rounded-md sm:rounded-lg md:xl lg:rounded-2xl
         p-6 sm:p-4 md:p-8 lg:p-10o'>
      <div className="flex flex-col gap-4 justify-center items-center">
        <button className='w-12 h-6 self-end' onClick={() => 
@@ -41,6 +42,8 @@ export default function ResultPage() {
 }
 
 function TempCard() {
+    const mainRef = useRef(null);
+
     useGSAP(() => {
 
         const rise = new SplitType('#arise', {
@@ -55,12 +58,40 @@ function TempCard() {
             stagger: 0.3,
         })
 
-    }, [])
+        const card = mainRef.current;
+        // let state;
+        // state = Flip.getState(card);
+        // // card.style.transform = 'translateY(100px)';
+
+        // gsap.set(card, { y: -300 });
+
+        // Flip.from(state, {
+        // targets: card,
+        // duration: 3,
+        // ease: 'power2.out',
+        // absolute: true,
+        // onComplete: () => {
+        //     // gsap.set(card, {ease: 'back.inOut', y: 0});
+
+        //     gsap.to(card, {
+        //         y: 0,
+        //         ease: 'back.inOut',
+        //         duration: 3,
+        //         absolute: true,
+        //     })
+
+        // }
+
+        // }); 
+
+    }, { scope: mainRef}) /*for cleanup*/
 	return (
 
-	<div className="relative overflow-hidden width height high-temprature rounded">
+	<div className="relative overflow-hidden width height high-temprature rounded"
+    id='MainCard'
+    ref={mainRef}>
         <div className='absolute inset-0 grid grid-rows-3 gap-0 place-items-center'>
-		<header className="font-inter font-medium tracking-widest
+            <header className="font-inter font-medium tracking-widest
 			text-4xl sm:text-3xl md:text-6xl opacity-1 y-0
 			text-indigo-50 pb-0.5 drop-shadow self-end"
         id='arise'>38°C</header>
@@ -99,9 +130,14 @@ function StatusCard() {
             duration: 2.5,
             stagger: 0.5,
             ease: 'back.inOut',
-            repeat: 2,
+            repeat: 2, 
             yoyo: true,
         })
+
+        /* Flip plugin does the math for you, you record the first and last position
+        or shape
+         */ 
+
     }, [])
 
 
