@@ -1,6 +1,11 @@
+import React from 'react';
 import { useState, useRef, useEffect, } from 'react';
 import { useNavigate } from "react-router-dom";
 import './index.css';
+// import Spline from '@splinetool/react-spline';
+import * as THREE from 'three';
+import { Canvas } from '@react-three/fiber';
+import { useGLTF, OrbitControls, useTexture } from '@react-three/drei';
 
 // import ResultPage from './ResultPage';
 
@@ -18,9 +23,11 @@ export default function SearchPage() {
 	 <TheSun />
 	 <ToSearch />
 	 <TheTree />
-	 {/*<TextCard />*/} 
-	 <APIcard />
+	 {/* <APIcard /> */}
 	 <ToNavigate />
+	 {/* <TestMeshScene /> */}
+	 <LeafScene /> 
+	 {/* <TreeScene /> temporarily commented */}
 	</div>
 );
 }
@@ -170,84 +177,130 @@ function TheTree() {
 			);
 }
 
-// function TextCard({slide}) {		/*props are basically how components 
-// talk to each other, you define a state in one place and pass it down
-// to whoever needs it*/
-// 		const [flip, setFlip] = useState(false);
+// function TreeScene() {
 
-// 		useEffect(() => {
-// 			let fliper;
-// 			if(slide) {
-// 				fliper = setInterval(() => {
-// 					setFlip(prev => !prev);
-// 				}, 5000);
-// 			}
-// 			return () => clearInterval(fliper);
-// 		}, [slide]);
+//   return (
+// 	<div className='h-fit w-full'> 
+//     <Spline scene="https://prod.spline.design/k4HdtEjbBEFr3bSD/scene.splinecode" />
+//   </div>
+//   );
 
-// 	 return (
-// 	 	<div className="textCard" 
-// 	 	style={{background: 
-// 	 	flip &&'linear-gradient(to right, #FFFFFF00 17%, #FFFFFF 70%)',
-// 	 transition: 'all 1s ease-in-out'}}>
-// 	 		<p>waiting for API...</p>
-// 	 	</div>
-// 	 	);
+//   // we're gonna use .glb exporting way instead...
+
+// } 
+
+function Leaf() {
+	const { scene } = useGLTF('/models/TreeScene.glb');
+	const colorMap = useTexture('/textures/leaf2.jpg');
+
+	useEffect(() => { 
+		scene.traverse((child => {
+		if(child.isMesh) {
+			child.material = new THREE.MeshStandardMaterial({
+				map: colorMap,
+				roughness: 0.6,
+				metalness: 0.1,
+			})
+		}
+	}))
+
+	}, [scene, colorMap]);
+
+	return <primitive object={scene} scale={1.5} />
+}
+function LeafScene() {
+	return(
+		<Canvas camera={{ position: [0, 3, 6], fov: 50}}>
+			<ambientLight intensity={1} />
+			<directionalLight position={[6, 6, 6]} intensity={2} />
+			<Leaf /> 
+			<OrbitControls />
+		</Canvas>
+	)
+}
+ 
+// function TestMesh() {
+// 	const texture = useTexture('/textures/leaf2.jpg');
+	
+// 	return (
+// 		<mesh>
+// 			<boxGeometry args={[3, 2, 2]} />
+// 			<meshStandardMaterial roughness={2} 
+// 			metalness={0.5} map={texture} color='white' />
+// 		</mesh>
+// 	);
+
+// } // in RTF hooks like useGLTF and useTexture can only run inside components 
+// that are children of <Canvas> otherwise you'll get an error, that's why we're using
+// two components, one for the hooks and the other for the scene rendering
+
+// function TestMeshScene() {
+	
+// 	return (
+// 		<Canvas camera={{ position: [0, 3, 6], fov: 80}}>	
+// 			<ambientLight intensity={3} />
+// 			<directionalLight position={[2, 4, 6]} intensity={3} />
+// 			<TestMesh />
+// 			<OrbitControls /> 
+// 		</Canvas>
+	
+// 	);
 // }
 
-function APIcard() {
-			// const [quote, setQuote] = useState(null); // belongs to API refrence 
-			// const [next, setNext] = useState(false);
-			const items = ['Cloudy', 'Rainy', 'Sunny', 'Snowy', 'Foggy', 'Windy'];
-			const [index, setIndex] = useState(0);
-			const [info, setInfo] = useState(null);
+
+// function APIcard() {
+// 			// const [quote, setQuote] = useState(null); // belongs to API refrence 
+// 			// const [next, setNext] = useState(false);
+// 			const items = ['Cloudy', 'Rainy', 'Sunny', 'Snowy', 'Foggy', 'Windy'];
+// 			const [index, setIndex] = useState(0);
+// 			const [info, setInfo] = useState(null);
 
 
-		const handleClick = () => {
-		setIndex(Math.floor(Math.random() * items.length));
-		}
+// 		const handleClick = () => {
+// 		setIndex(Math.floor(Math.random() * items.length));
+// 		}
 		
-		useEffect(() => {
+// 		useEffect(() => {
 
-	fetch('https://v2.jokeapi.dev/joke/Any')
-		.then(res => res.json())
-		.then(data => {
-			setInfo(data);
-		})
-		.catch(err => {
-			console.error('Sorry:', err);
-		})		
+// 	fetch('https://v2.jokeapi.dev/joke/Any')
+// 		.then(res => res.json())
+// 		.then(data => {
+// 			setInfo(data);
+// 		})
+// 		.catch(err => {
+// 			console.error('Sorry:', err);
+// 		})		
 
-		}, [])
+// 		}, [])
 
-		if(!info) return <p className='text-3xl'>Waiting...</p>
+// 		if(!info) return <p className='text-2xl ml-4'>Waiting...</p>
 
 			
-		return (
-			<> 
-<div className="bg-[linear-gradient(to_left,#FFFFFF00_20%,#FFFFFF_45%)]
-				opacity-80 rounded-2xl sm:rounded-3xl 
-				text-center overflow-hidden w-full
-				max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl
-				h-20 sm:h-24 md:h-28 lg:h-32
-				row-start-3 col-start-2 self-end justify-self-center
-		 		px-4 sm:px-6 md:px-8 lg:px-10
-		 		py-8 sm:py-10 md:py-12 lg:py-14
-		 		shadow-lg sm:shadow-xl md:shadow-2xl
-		 		hover:shadow-5xl
-				flex justify-center">
- 	<p className="self-center my-4 sm:my-6 md:my-8 lg:my-y10 
-text-sm sm:text-base md:text-lg
-leading-relaxed sm:leading-loose">{info.joke}</p>
-</div> 				{/*Line height for readability*/}
-<p className='bg-gradient-to-r from-gray-50/100 from-20% to-gray-100/10 to-70% 
-text-center text-3xl row-start-4 rounded-2xl p-4
-self-center justify-self-center ml-14'
-onClick={handleClick}>{items[index]}</p>
-				
-			</>
-	);
-}
+// 		return (
+// 			<> 
+// <div className="bg-[linear-gradient(to_left,#FFFFFF00_20%,#FFFFFF_45%)]
+// 				opacity-80 rounded-2xl sm:rounded-3xl 
+// 				text-center overflow-hidden w-full
+// 				max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl
+// 				h-20 sm:h-24 md:h-28 lg:h-32
+// 				row-start-3 col-start-2 self-end justify-self-center
+// 		 		px-4 sm:px-6 md:px-8 lg:px-10
+// 		 		py-8 sm:py-10 md:py-12 lg:py-14
+// 		 		shadow-lg sm:shadow-xl md:shadow-2xl
+// 		 		hover:shadow-5xl
+// 				flex justify-center">
+//  	<p className="self-center my-4 sm:my-6 md:my-8 lg:my-y10 
+// text-sm sm:text-base md:text-lg
+// leading-relaxed sm:leading-loose">{info.joke}</p>
+// </div> 				{/*Line height for readability*/}
+// <p className='bg-gradient-to-r from-gray-50/100 from-20% to-gray-100/10 to-70% 
+// text-center text-3xl row-start-4 rounded-2xl p-4
+// self-center justify-self-center ml-14'
+// onClick={handleClick}>{items[index]}</p> 
+			
+// 			</>
+// 	);
+// }
 
 	function ToNavigate ({ grow, clicked }) {
 				const navigate = useNavigate(); // to use navigate hook
@@ -337,23 +390,8 @@ onClick={handleClick}>{items[index]}</p>
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 {/* 1. Remember to remove placeholder extra padding and add letter 
 spacing and let the p delay a bit after it's visible again* /}
-{/*2. link the tree animation with the card getting flipped animaton
-when the tree leaves the screen the card gets flipped */}
-{/*Well done with API + Tailwind today, now don't forget to
-add the author(data[1]) and lineargradient transistion*/}
 
 
 {/* here's the thing, for 1- the result page we only need a container

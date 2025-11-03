@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import sunIcon from './resultPageAssests/icons/sun.svg';
+import sunIcon from './resultPageAssests/icons/theSun.svg';
 import windIcon from './resultPageAssests/icons/Wind.svg';
 import humidityIcon from './resultPageAssests/icons/humidity_percentage.svg';
 import skyScrapper from './resultPageAssests/icons/skyscraper.svg';
@@ -205,3 +205,4 @@ function TimeCard() {
     );
 }
 
+// resultPage canvas and cards aren't yet fully responsive...
