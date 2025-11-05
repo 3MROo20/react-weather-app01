@@ -2,19 +2,16 @@ import React from 'react';
 import { useState, useRef, useEffect, } from 'react';
 import { useNavigate } from "react-router-dom";
 import './index.css';
-// import Spline from '@splinetool/react-spline';
 import * as THREE from 'three';
 import { Canvas } from '@react-three/fiber';
-import { useGLTF, OrbitControls, useTexture } from '@react-three/drei';
+import { useGLTF, OrbitControls, useTexture, Box, Text3D, Center } from '@react-three/drei';
 
-// import ResultPage from './ResultPage';
 
 
 export default function SearchPage() {
 	const [ active, setActive ] = useState(false);
 
 
-// const bgColor = active ? "container" : "container-grid";
 
 	return (
 	<div className={`container ${active && "grid"}`} 
@@ -23,11 +20,11 @@ export default function SearchPage() {
 	 <TheSun />
 	 <ToSearch />
 	 <TheTree />
-	 {/* <APIcard /> */}
+	 {/* <APIcard /> temporarily commented */}
 	 <ToNavigate />
 	 {/* <TestMeshScene /> */}
-	 <LeafScene /> 
-	 {/* <TreeScene /> temporarily commented */}
+	 <TreeScene /> 
+	 {/* <ThreedText /> temporarily commented  */}
 	</div>
 );
 }
@@ -78,20 +75,6 @@ function TheSun() {
 	);
 }
 
-// how to add an element using state 
-// function toInput() {
-//  		const [elements, setElements] = useState([<input/>]);
-
-//  	return (
-//		<div>			{/*to add a new elemenet*/}		// maping through the array
-//	 {elements.map((el, i) => (<div key={i}>{el}</div>))}
-//  	</div>			// adding the elements
-//  	setElements([...elements, <input key={i} placeholder="Search"/>]);
-//  			);
-//  		// if(input.trim() === "") return;
-//  		// setInput(e.target.value);
-//  	}
-
 /* The code in this component needs to be cleaned it's 
 so messy */
 function ToSearch() {
@@ -100,14 +83,17 @@ function ToSearch() {
 	const [visible, setVisible] = useState(false);
 	const [clicked, setClicked] = useState(false);
 
+	const divRef = useRef(null);
+	// const divWidth = divRef.current.style.width;
+	const pRef = useRef(null);
+	// const pIsRef = pRef.current; 
+
 	function handleClick() {
  		setGrow(true);
  }
 
- 	/* In React, Hooks cannot be inside a function or conditionals or loops
- 	they must alwasy be at the top level of the component, that's why at 
- 	first it wasn't working cause it was inside handleClick funciton*/
 	useEffect(() => {
+
 		let timer;
  	 	if(grow) {
  	 	timer = setTimeout(() => {
@@ -130,18 +116,33 @@ function ToSearch() {
 		return () => clearTimeout(Timer);
 	}, [grow]);
 
+	useEffect(() => {
+		let toTime;
+		if(grow) {
+			pRef.current.style.display = 'none';
+			pRef.current.style.opacity = '0';
+		}
+		else {
+			toTime = setTimeout(() => {
+			pRef.current.style.display = 'block';
+			pRef.current.style.opacity = '1';
+			}, 500);
+		}
+		return () => clearTimeout(toTime);
+	}, [grow]); 
+
+
  const svg = <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" 
  	viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" 
  	strokeLinecap="round" strokeLinejoin="round"> 
 <circle cx="11" cy="11" r="8"/> <line x1="23" y1="23" x2="16.65" y2="16.65"/>
  	 </svg>
 
- // const state = grow ? "PHshrinked" : "PHstretched";
 	 return (
 	 	<div className="barXplaceholder">
 	 	 {/*SearchBar part*/}
 		<button className="searchBtn" onClick={handleClick} style={{
-		  width: grow && 'clamp(17rem, 13rem + 20vw, 25rem)',
+		  width: grow && 'clamp(19rem, 13rem + 20vw, 25rem)',
 		  transition: 'all 1.5s ease',
 		}}>{svg} {grow && <input style={{opacity: visible ? "1" : "0"}} 
 			value={input} onChange={(e) => setInput(e.target.value)} 
@@ -149,12 +150,13 @@ function ToSearch() {
 			</button>   
 
 		 {/*Placeholder part*/}
-		<div className="P-container" style={{ width: grow && '0'}}>
-			<p className="PHolder" style={{ display: grow && 'none'}}>
-			Enter a city name</p></div>
-			<ToNavigate grow={grow} clicked={clicked} /> {/*only one is enough*/}
+		<div ref={divRef} className="PHolder" style={{ width: grow && '0'}}>
+			<p ref={pRef} style={{ opacity: '1'}}>
+			Enter a city name</p>
+			 </div> 
+			<ToNavigate grow={grow} clicked={clicked} /> 
 		</div>
-	);
+	); 
 }
 
 function TheTree() {
@@ -172,28 +174,17 @@ function TheTree() {
 			<>
 			<img className="Tree" src="/src/windyTree.png" style=
 				{{animation: slide && 'slide 15s ease-in-out'}}  />
-			{/*<TextCard slide={slide} />*/}
 			</>
-			);
+			); 
 }
 
-// function TreeScene() {
-
-//   return (
-// 	<div className='h-fit w-full'> 
-//     <Spline scene="https://prod.spline.design/k4HdtEjbBEFr3bSD/scene.splinecode" />
-//   </div>
-//   );
-
-//   // we're gonna use .glb exporting way instead...
-
-// } 
-
-function Leaf() {
-	const { scene } = useGLTF('/models/TreeScene.glb');
+function Tree() {
+	const { scene } = useGLTF('/models/treescene.glb');
 	const colorMap = useTexture('/textures/leaf2.jpg');
 
 	useEffect(() => { 
+		// traverse is like forEach but instead of mapping over an array items, it mapps 
+		// over an object descendants (meshes), below, we assin a material to all meshes of Tree
 		scene.traverse((child => {
 		if(child.isMesh) {
 			child.material = new THREE.MeshStandardMaterial({
@@ -206,27 +197,47 @@ function Leaf() {
 
 	}, [scene, colorMap]);
 
+	// primitives are used to integrate exisitng Three.js objects
+	// commonly used with loaded 3D models like GLTF files
 	return <primitive object={scene} scale={1.5} />
 }
-function LeafScene() {
+function TreeScene() {
 	return(
-		<Canvas camera={{ position: [0, 3, 6], fov: 50}}>
+		<div className='row-start-4 col-span-2 w-full'>
+		<Canvas camera={{ position: [10, 14, 5], fov:50}}>
 			<ambientLight intensity={1} />
 			<directionalLight position={[6, 6, 6]} intensity={2} />
-			<Leaf /> 
+			<Tree /> 
 			<OrbitControls />
 		</Canvas>
+		</div>
 	)
 }
  
+// function ThreedText() {
+
+// 	return (
+// 		<Canvas camera={{ position: [1, 3, 4], fov: 50}}>
+// 				<Text3D scale={[2, 2 , 2]} color='yellow'>
+// 					Hello World
+// 					<meshPhongMaterial />
+// 				</Text3D>
+// 			<ambientLight intensity={1.5}/>
+// 			<directionalLight position={[1, 2, 2]} intensity={2}/>
+// 			<OrbitControls />
+// 		</Canvas>
+// 	);
+// }
+
 // function TestMesh() {
 // 	const texture = useTexture('/textures/leaf2.jpg');
 	
 // 	return (
 // 		<mesh>
-// 			<boxGeometry args={[3, 2, 2]} />
+// 			<boxGeometry args={[3, 2, 2]} />  from React Three Fiber
 // 			<meshStandardMaterial roughness={2} 
 // 			metalness={0.5} map={texture} color='white' />
+			// <Box></Box> from React Three drei
 // 		</mesh>
 // 	);
 
@@ -247,60 +258,6 @@ function LeafScene() {
 // 	);
 // }
 
-
-// function APIcard() {
-// 			// const [quote, setQuote] = useState(null); // belongs to API refrence 
-// 			// const [next, setNext] = useState(false);
-// 			const items = ['Cloudy', 'Rainy', 'Sunny', 'Snowy', 'Foggy', 'Windy'];
-// 			const [index, setIndex] = useState(0);
-// 			const [info, setInfo] = useState(null);
-
-
-// 		const handleClick = () => {
-// 		setIndex(Math.floor(Math.random() * items.length));
-// 		}
-		
-// 		useEffect(() => {
-
-// 	fetch('https://v2.jokeapi.dev/joke/Any')
-// 		.then(res => res.json())
-// 		.then(data => {
-// 			setInfo(data);
-// 		})
-// 		.catch(err => {
-// 			console.error('Sorry:', err);
-// 		})		
-
-// 		}, [])
-
-// 		if(!info) return <p className='text-2xl ml-4'>Waiting...</p>
-
-			
-// 		return (
-// 			<> 
-// <div className="bg-[linear-gradient(to_left,#FFFFFF00_20%,#FFFFFF_45%)]
-// 				opacity-80 rounded-2xl sm:rounded-3xl 
-// 				text-center overflow-hidden w-full
-// 				max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl
-// 				h-20 sm:h-24 md:h-28 lg:h-32
-// 				row-start-3 col-start-2 self-end justify-self-center
-// 		 		px-4 sm:px-6 md:px-8 lg:px-10
-// 		 		py-8 sm:py-10 md:py-12 lg:py-14
-// 		 		shadow-lg sm:shadow-xl md:shadow-2xl
-// 		 		hover:shadow-5xl
-// 				flex justify-center">
-//  	<p className="self-center my-4 sm:my-6 md:my-8 lg:my-y10 
-// text-sm sm:text-base md:text-lg
-// leading-relaxed sm:leading-loose">{info.joke}</p>
-// </div> 				{/*Line height for readability*/}
-// <p className='bg-gradient-to-r from-gray-50/100 from-20% to-gray-100/10 to-70% 
-// text-center text-3xl row-start-4 rounded-2xl p-4
-// self-center justify-self-center ml-14'
-// onClick={handleClick}>{items[index]}</p> 
-			
-// 			</>
-// 	);
-// }
 
 	function ToNavigate ({ grow, clicked }) {
 				const navigate = useNavigate(); // to use navigate hook
@@ -387,14 +344,3 @@ function LeafScene() {
 // 		<p>{quote.author}</p>
 // 	</div>
 // )
-
-
-
-{/* 1. Remember to remove placeholder extra padding and add letter 
-spacing and let the p delay a bit after it's visible again* /}
-
-
-{/* here's the thing, for 1- the result page we only need a container
-and 3 cards other colors and conditions we'll toggle them with 
-conditional rendering and use API for the live data... 2- for the loading
-page it's the same concept...*/} 
