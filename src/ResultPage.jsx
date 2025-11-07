@@ -78,7 +78,7 @@ function TempCard() {
         //     })
 
         // }
-
+        
         // }); 
 
     }, { scope: mainRef}) /*for cleanup*/
@@ -135,7 +135,6 @@ function StatusCard() {
          */ 
 
     }, [])
-
 
 
 

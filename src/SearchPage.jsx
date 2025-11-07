@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { forwardRef, useImperativeHandle } from 'react';
 import { useState, useRef, useEffect, } from 'react';
 import { useNavigate } from "react-router-dom";
 import './index.css';
 import * as THREE from 'three';
 import { Canvas } from '@react-three/fiber';
-import { useGLTF, OrbitControls, useTexture, Box, Text3D, Center } from '@react-three/drei';
+import { useGLTF, OrbitControls, useTexture, Box, 
+	  Text3D, Center, Environment, 
+	  GradientTexture } from '@react-three/drei';
 
 
 
@@ -19,13 +21,14 @@ export default function SearchPage() {
 	 <Clock/>  
 	 <TheSun />
 	 <ToSearch />
-	 <TheTree />
+	 {/* <TheTree /> b */}
 	 {/* <APIcard /> temporarily commented */}
 	 <ToNavigate />
 	 {/* <TestMeshScene /> */}
 	 <TreeScene /> 
 	 {/* <ThreedText /> temporarily commented  */}
 	</div>
+
 );
 }
 // for real time data 
@@ -84,9 +87,7 @@ function ToSearch() {
 	const [clicked, setClicked] = useState(false);
 
 	const divRef = useRef(null);
-	// const divWidth = divRef.current.style.width;
 	const pRef = useRef(null);
-	// const pIsRef = pRef.current; 
 
 	function handleClick() {
  		setGrow(true);
@@ -150,7 +151,7 @@ function ToSearch() {
 			</button>   
 
 		 {/*Placeholder part*/}
-		<div ref={divRef} className="PHolder" style={{ width: grow && '0'}}>
+		<div className="PHolder" style={{ width: grow && '0'}}>
 			<p ref={pRef} style={{ opacity: '1'}}>
 			Enter a city name</p>
 			 </div> 
@@ -159,60 +160,142 @@ function ToSearch() {
 	); 
 }
 
-function TheTree() {
-	const [slide, setSlide] = useState(false);
+// function TheTree() {
+// 	const [slide, setSlide] = useState(false);
 
-	useEffect(() => {
-		let slider;
-		slider = setInterval(() => {
-			setSlide(prev => !prev);
-		}, 15000);
-		return () => clearInterval(slider);
-	}, []);
+// 	useEffect(() => {
+// 		let slider;
+// 		slider = setInterval(() => {
+// 			setSlide(prev => !prev);
+// 		}, 15000);
+// 		return () => clearInterval(slider);
+// 	}, []);
 
-		return (
-			<>
-			<img className="Tree" src="/src/windyTree.png" style=
-				{{animation: slide && 'slide 15s ease-in-out'}}  />
-			</>
-			); 
-}
+// 		return (
+// 			<>
+// 			<img className="Tree" src="/src/windyTree.png" style=
+// 				{{animation: slide && 'slide 15s ease-in-out'}}  />
+// 			</>
+// 			); 
+// } 
 
-function Tree() {
+const Tree = forwardRef(function Tree(props, ref) {
 	const { scene } = useGLTF('/models/treescene.glb');
-	const colorMap = useTexture('/textures/leaf2.jpg');
+	const leafMap = useTexture('/textures/leaves.jpg');
+	const appleMap = useTexture('/textures/textureapple.jpg');
+	const trunkMap = useTexture('/textures/tree.jpg');
+	const gTopMap = useTexture('/textures/terrain.jpg');
+	const gBottomMap = useTexture('/textures/mud.jpg');
+
 
 	useEffect(() => { 
+		// const groundGroup = scene.getObjectByName('Ground'); 
+		// for selecting a specific group to use its pre-meshes
+
 		// traverse is like forEach but instead of mapping over an array items, it mapps 
 		// over an object descendants (meshes), below, we assin a material to all meshes of Tree
 		scene.traverse((child => {
 		if(child.isMesh) {
+			switch(child.name) {
+			case 'Apples':
+				child.material = new THREE.MeshStandardMaterial({
+					// map: appleMap,
+					roughness: 0.5,
+					metalness: 0.1, 
+					color: 'red',
+				}) 
+
+			break
+
+			case 'Trunk':
 			child.material = new THREE.MeshStandardMaterial({
-				map: colorMap,
-				roughness: 0.6,
-				metalness: 0.1,
+					map: trunkMap,
+		   })
+
+			break
+
+		   case 'leaf':
+			 child.material = new THREE.MeshStandardMaterial({
+				map: leafMap,
+				roughness: '0.8',
+				color: '#71E0A3',
+			 })
+			 
+			break
+			
+			case 'groundTop':
+			{/* needs to know how to manually select it in the DOM and if React three fiber 
+			and three drei can make the process less daugnting 
+			const [groundTop, groundBottom] = groundGroup.children; */}
+
+			child.material = new THREE.MeshStandardMaterial({
+				map: gTopMap,
+				color: '#82DE80',
 			})
+			break
+
+			case 'groundBottom':
+			child.material = new THREE.MeshStandardMaterial({
+				map: gBottomMap,
+				color: '#7130A3',
+			})
+			break
+		}	
+
+
 		}
+
+
 	}))
 
-	}, [scene, colorMap]);
+	}, [scene, appleMap, trunkMap, leafMap, gTopMap, gBottomMap]);
 
-	// primitives are used to integrate exisitng Three.js objects
+	// Expose a simple API to parent components: the whole scene  and the 'trunk' mesh.
+	// This allows parents to inspect/manipulate the trunk safely via the forwarded ref.
+	useImperativeHandle(ref, () => ({
+		scene,
+		trunk: scene ? scene.getObjectByName('Trunk') : undefined,
+	}), [scene]);
+
+	
+	// primitives are used to integrate existing Three.js objects
 	// commonly used with loaded 3D models like GLTF files
-	return <primitive object={scene} scale={1.5} />
-}
+	return <primitive object={scene} scale={3} position={[-8, -4, -8]} />;
+
+});
+
 function TreeScene() {
+
+	const treeRef = useRef();
+
+	// if(trunkRef.current?.trunk) {
+	// 	const trunk = trunkRef.current.trunk;
+	// }
+
 	return(
-		<div className='row-start-4 col-span-2 w-full'>
-		<Canvas camera={{ position: [10, 14, 5], fov:50}}>
-			<ambientLight intensity={1} />
-			<directionalLight position={[6, 6, 6]} intensity={2} />
-			<Tree /> 
+		<div className='row-start-4 col-span-3 w-full h-[250px] 
+		 flex items-start'>
+		<Canvas camera={{ position: [5, 5, 10], fov:60}}>
+			<directionalLight position={[6, 6, 6]} intensity={1} />
+			<ambientLight intensity={0.5} />
+			<pointLight position={[0, 2, 10]} intensity={0.6} />
+						<Tree ref={treeRef}/> 
+						{/* Only render the mesh when the referenced trunk geometry is available. */}
+						{treeRef.current?.trunk?.geometry && (
+							<mesh geometry={treeRef.current.trunk.geometry}>
+							 <GradientTexture
+							 stops={[0, 1]}
+							 colors={['#885C33', '#71E0A3']}
+							 size={1024} />  {/* default size */}
+							<meshStandardMaterial/>
+							</mesh>
+						)}
 			<OrbitControls />
+			<Environment preset='sunset' />  {/*to lighten the scene  */}
 		</Canvas>
-		</div>
+		</div> 
 	)
-}
+} 
  
 // function ThreedText() {
 
@@ -259,7 +342,7 @@ function TreeScene() {
 // }
 
 
-	function ToNavigate ({ grow, clicked }) {
+	function ToNavigate ({ grow , clicked }) {
 				const navigate = useNavigate(); // to use navigate hook
 
 				useEffect(() => {
