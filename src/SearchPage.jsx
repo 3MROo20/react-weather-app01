@@ -1,12 +1,18 @@
-import React, { forwardRef, useImperativeHandle } from 'react';
+import React, { forwardRef, Suspense, use, useImperativeHandle } from 'react';
 import { useState, useRef, useEffect, } from 'react';
 import { useNavigate } from "react-router-dom";
 import './index.css';
+import gsap from 'gsap';
 import * as THREE from 'three';
-import { Canvas } from '@react-three/fiber';
+import { Canvas, extend, useThree } from '@react-three/fiber';
 import { useGLTF, OrbitControls, useTexture, Box, 
 	  Text3D, Center, Environment, 
-	  GradientTexture } from '@react-three/drei';
+	  GradientTexture, 
+	  MeshTransmissionMaterial,
+	  MeshReflectorMaterial, shaderMaterial,
+	  ContactShadows,
+	  Loader,
+	  Html} from '@react-three/drei';
 
 
 
@@ -26,7 +32,7 @@ export default function SearchPage() {
 	 <ToNavigate />
 	 {/* <TestMeshScene /> */}
 	 <TreeScene /> 
-	 {/* <ThreedText /> temporarily commented  */}
+	{/* <TextCard />*/}
 	</div>
 
 );
@@ -160,186 +166,244 @@ function ToSearch() {
 	); 
 }
 
-// function TheTree() {
-// 	const [slide, setSlide] = useState(false);
-
-// 	useEffect(() => {
-// 		let slider;
-// 		slider = setInterval(() => {
-// 			setSlide(prev => !prev);
-// 		}, 15000);
-// 		return () => clearInterval(slider);
-// 	}, []);
-
-// 		return (
-// 			<>
-// 			<img className="Tree" src="/src/windyTree.png" style=
-// 				{{animation: slide && 'slide 15s ease-in-out'}}  />
-// 			</>
-// 			); 
-// } 
-
-const Tree = forwardRef(function Tree(props, ref) {
+function Tree() {
+ 
 	const { scene } = useGLTF('/models/treescene.glb');
-	const leafMap = useTexture('/textures/leaves.jpg');
-	const appleMap = useTexture('/textures/textureapple.jpg');
-	const trunkMap = useTexture('/textures/tree.jpg');
-	const gTopMap = useTexture('/textures/terrain.jpg');
-	const gBottomMap = useTexture('/textures/mud.jpg');
+	const treeRef = useRef();
 
+
+	const leafMap = useTexture('/textures/leaves.jpg');
+	const appleMap = useTexture('/textures/apple.jpg');
+	const trunkMap = useTexture('/textures/tree2.jpg');
+	const gtopMap = useTexture('/textures/terrain.jpg');
+	const gbottomMap = useTexture('/textures/mud2.jpg');
+	const backgroundAMap = useTexture('/textures/mud.jpg');
+	const backgroundEMap = useTexture('/textures/mud2.jpg');
+	// const topEMap = useTexture('/textures/terrain2.jpg');
+	const leafMap2 = useTexture('/textures/leaves2.jpg');
+
+	{/* background Wrapping & Sharpness _main texture */}
+	gtopMap.wrapS = gtopMap.wrapT = THREE.MirroredRepeatWrapping;
+	gbottomMap.wrapS = gbottomMap.wrapT = THREE.ClampToEdgeWrapping;
+	gtopMap.minFilter = THREE.LinearMipMapLinearFilter;
+	gbottomMap.minFilter = THREE.LinearMipMapLinearFilter;
+	gbottomMap.repeat.set(4, 4);
+
+	{/* background Wrapping & Sharpness _normal and displacement maps */}
+	backgroundAMap.wrapS = backgroundAMap.wrapT = THREE.MirroredRepeatWrapping;
+	backgroundEMap.wrapS = backgroundEMap.wrapT = THREE.MirroredRepeatWrapping;
+
+	{/* leaf Wrapping & Sharpness */}
+	leafMap.wrapS = leafMap.wrapT = THREE.MirroredRepeatWrapping;
+	leafMap.minFilter = THREE.LinearMipMapLinearFilter;
 
 	useEffect(() => { 
-		// const groundGroup = scene.getObjectByName('Ground'); 
-		// for selecting a specific group to use its pre-meshes
 
 		// traverse is like forEach but instead of mapping over an array items, it mapps 
 		// over an object descendants (meshes), below, we assin a material to all meshes of Tree
 		scene.traverse((child => {
 		if(child.isMesh) {
 			switch(child.name) {
-			case 'Apples':
-				child.material = new THREE.MeshStandardMaterial({
-					// map: appleMap,
-					roughness: 0.5,
-					metalness: 0.1, 
-					color: 'red',
-				}) 
-
-			break
-
-			case 'Trunk':
-			child.material = new THREE.MeshStandardMaterial({
+				case 'Trunk':
+					child.material = new THREE.MeshStandardMaterial({
 					map: trunkMap,
-		   })
-
+					roughness: 0.4,
+					metalness: 0,
+					color: '#AB7541',
+		   })  			
 			break
 
 		   case 'leaf':
-			 child.material = new THREE.MeshStandardMaterial({
-				map: leafMap,
-				roughness: '0.8',
-				color: '#71E0A3',
+			 child.material = new THREE.MeshPhysicalMaterial({
+				 map: leafMap2,
+				 color: '#90EE90',
+				 roughness: 0.5,
+				 metalness: 0.1,
+				 transparent: true,
+				 alphaTest: 0.5,
+				 side: THREE.DoubleSide,
+
 			 })
-			 
+			child.castShadow = true;
 			break
 			
-			case 'groundTop':
-			{/* needs to know how to manually select it in the DOM and if React three fiber 
-			and three drei can make the process less daugnting 
-			const [groundTop, groundBottom] = groundGroup.children; */}
-
+			case 'ground_top':
 			child.material = new THREE.MeshStandardMaterial({
-				map: gTopMap,
-				color: '#82DE80',
-			})
-			break
+				map: gtopMap,
+				roughness: 0.8,
+				metalness: 0.2,
+				color: '#90EE90',
 
-			case 'groundBottom':
-			child.material = new THREE.MeshStandardMaterial({
-				map: gBottomMap,
-				color: '#7130A3',
 			})
+			child.scale.z = 0.3;
+			child.position.y = 0.5;
+			child.receiveShadow = true;
+			break 
+			
+			
+			case 'ground_bottom':
+				child.material = new THREE.MeshPhysicalMaterial({
+				map: backgroundAMap,
+				aoMap: gbottomMap,
+				emissiveMap: backgroundEMap,
+			})
+			child.scale.z = -0.45;
+			child.position.y = 0.5;
 			break
 		}	
 
-
-		}
+				
+	}
+			if(child.name.startsWith('Sphere')) {
+			child.material = new THREE.MeshPhysicalMaterial({
+					map: appleMap,
+					roughness: 0.5,
+					metalness: 0.1,
+					clearcoat: 0.5,
+					clearcoatRoughness: 0.3, 
+					color: '#D20A2E',
+					opacity: 0.5,
+				}) 
+			child.castShadow = true;
+			}
 
 
 	}))
+	}, [scene, leafMap, appleMap, trunkMap, gtopMap, gbottomMap, backgroundAMap,
+		backgroundEMap, leafMap2]);
 
-	}, [scene, appleMap, trunkMap, leafMap, gTopMap, gBottomMap]);
+		useEffect(() => { {/* will refine the animation later */}
+			const tl = gsap.timeline({onComplete: TreeScene, delay: 0.5, ease: 'backIn'});
+					if (!treeRef.current) return
+						tl.fromTo(treeRef.current.position, {
+							x: 1.5, y: -0.5, z: 0,
+							duration: 1,
+						}, 
+					{
+						x: 5.2, y: -4.2, z: 0,
+					})
 
-	// Expose a simple API to parent components: the whole scene  and the 'trunk' mesh.
-	// This allows parents to inspect/manipulate the trunk safely via the forwarded ref.
-	useImperativeHandle(ref, () => ({
-		scene,
-		trunk: scene ? scene.getObjectByName('Trunk') : undefined,
-	}), [scene]);
+					if (!treeRef.current) return
+						tl.fromTo(treeRef.current.rotation, {
+							x: 0, y: -3.00, z: -0.045,
+							duration: 1,
+						}, 
+					{
+						x: 0, y: -3.35, z: -0.045,	
+					})
+					
+					// scale={2.5} position={[1.5, 0, 0]} rotation={[0, -2.60, -0.045]
+
+					if (!treeRef.current) return
+						tl.fromTo(treeRef.current.scale, {
+							x: 2.5, y: 2.5, z: 2.5,	
+							duration: 1,
+						}, 
+					{
+						x: 3, y: 3, z: 3,
+					})
+					}, [treeRef])
 
 	
+	// onReady is active when the scene is apparent 
+// 	const _ready = useRef(false);
+// 	useEffect(() => {
+// 		if (scene && !_ready.current) {
+// 			_ready.current = true;
+// 		if(typeof onReady === 'function') onReady();
+// 	}
+// }, [scene, onReady]);
+
 	// primitives are used to integrate existing Three.js objects
 	// commonly used with loaded 3D models like GLTF files
-	return <primitive object={scene} scale={3} position={[-8, -4, -8]} />;
+	return <primitive ref={treeRef} object={scene} scale={3} position={[5.2, -4.2, 0]} rotation={[0, -3.35, -0.045]} />
+	{/* here I noticed that I can animate the rotation of y axis instead of the camera it will give the exact movement that I want */}
+	{/* from rotatoin {0, -3.00, -0.045} to rotation={[0, -3.35, -0.045]} I can even animate the z rotation too
+		for a cinematic intro*/}
 
-});
+}
 
 function TreeScene() {
+	// const [loaded, setLoaded] = useState(false);
 
-	const treeRef = useRef();
-
-	// if(trunkRef.current?.trunk) {
-	// 	const trunk = trunkRef.current.trunk;
-	// }
-
-	return(
-		<div className='row-start-4 col-span-3 w-full h-[250px] 
-		 flex items-start'>
-		<Canvas camera={{ position: [5, 5, 10], fov:60}}>
-			<directionalLight position={[6, 6, 6]} intensity={1} />
-			<ambientLight intensity={0.5} />
-			<pointLight position={[0, 2, 10]} intensity={0.6} />
-						<Tree ref={treeRef}/> 
-						{/* Only render the mesh when the referenced trunk geometry is available. */}
-						{treeRef.current?.trunk?.geometry && (
-							<mesh geometry={treeRef.current.trunk.geometry}>
-							 <GradientTexture
-							 stops={[0, 1]}
-							 colors={['#885C33', '#71E0A3']}
-							 size={1024} />  {/* default size */}
-							<meshStandardMaterial/>
-							</mesh>
-						)}
+	return (
+		<>
+			<div className='row-start-4 col-span-3 w-full h-[270px]'>
+		<Canvas camera={{ position: [0, 2, 15], fov:60, near:0.1, far:100}} 
+		shadows dpr={[1, 2]} gl={{ shadowMapType: THREE.PCFSoftShadowMap }}
+		>
+			<directionalLight color={'#FFE484'} position={[2, 8, 0]} intensity={0.8} castShadow
+			shadow-mapSize-width={1024} shadow-mapSize-height={1024} 
+			shadow-camera-near={0.5} shadow-camera-far={500} 
+			shadow-camera-left={-10} shadow-camera-right={10}
+			shadow-camera-top={10} shadow-camera-bottom={-10} shadow-color={'#FFE484'} />
+				<ambientLight intensity={0.5}/>
+				<hemisphereLight intensity={0.3}  skyColor={'#FFE484'} groundColor={'#743E0C'} />
+			<Suspense fallback={<TextCard />}>
+     		<Tree /> 	
+			</Suspense>
 			<OrbitControls />
-			<Environment preset='sunset' />  {/*to lighten the scene  */}
+			<Environment preset='sunset' /> 
 		</Canvas>
-		</div> 
-	)
-} 
- 
-// function ThreedText() {
+		</div>
+		{/* {!loaded && <TextCard />} */}
+		</>
+	
+	);
+}
 
-// 	return (
-// 		<Canvas camera={{ position: [1, 3, 4], fov: 50}}>
-// 				<Text3D scale={[2, 2 , 2]} color='yellow'>
-// 					Hello World
-// 					<meshPhongMaterial />
-// 				</Text3D>
-// 			<ambientLight intensity={1.5}/>
-// 			<directionalLight position={[1, 2, 2]} intensity={2}/>
-// 			<OrbitControls />
-// 		</Canvas>
-// 	);
+// will be done in animation stage later
+function TextCard() {
+		// const animateRef = useRef();
+	 
+	//  animateRef.current.position maybe like this
+	//  useEffect(() => {
+	// 	if(!animateRef.current) return
+	// 	   gsap.to(animateRef.current, {  
+	// 		// from-indigo-50 from-30% via-gray-50/30 via-60% to-gray-50/0 to-85%
+	// 		backgroundImage: 'linear-gradient()',
+	// 		ease: 'circ.inOut',
+	// 		duration: 3,
+	// 		repeat: -1,
+	// 		yoyo: true,
+	// 	})
+
+	//    }, [animateRef])
+
+	return (
+		<Html fullscreen>
+			<div className='w-full h-fit flex justify-center'> 
+		<div className='w-fit h-fit x-0 px-44 py-4 cardGradient rounded-xl
+		 font-poppins font-medium text-lg'>Loading...</div>
+			</div>
+		</Html>
+	);
+}
+
+// temporarily commented, will be done in animation stage
+// function CameraAnimation() {
+// 		const { camera } = useThree();
+
+// 		useEffect(() => {
+// 			const radiusX = 5;
+// 			const radiusZ = 3;
+
+// 			gsap.to(camera.position, {
+// 				duration: '2',
+// 				ease: 'back.inOut',
+// 				onUpdate: () => {
+// 					const tl = gsap.timeline().time()
+// 					camera.position.x = Math.cos( tl * 0.3) * radiusX
+// 					camera.position.z = Math.sin(tl * 0.3) * radiusZ
+// 					camera.lookAt(0, 0, 0);
+// 				},
+// 			})
+
+// 		}, [camera]);
+
+// 		return null;
 // }
 
-// function TestMesh() {
-// 	const texture = useTexture('/textures/leaf2.jpg');
-	
-// 	return (
-// 		<mesh>
-// 			<boxGeometry args={[3, 2, 2]} />  from React Three Fiber
-// 			<meshStandardMaterial roughness={2} 
-// 			metalness={0.5} map={texture} color='white' />
-			// <Box></Box> from React Three drei
-// 		</mesh>
-// 	);
-
-// } // in RTF hooks like useGLTF and useTexture can only run inside components 
-// that are children of <Canvas> otherwise you'll get an error, that's why we're using
-// two components, one for the hooks and the other for the scene rendering
-
-// function TestMeshScene() {
-	
-// 	return (
-// 		<Canvas camera={{ position: [0, 3, 6], fov: 80}}>	
-// 			<ambientLight intensity={3} />
-// 			<directionalLight position={[2, 4, 6]} intensity={3} />
-// 			<TestMesh />
-// 			<OrbitControls /> 
-// 		</Canvas>
-	
-// 	);
-// }
 
 
 	function ToNavigate ({ grow , clicked }) {
