@@ -43,49 +43,45 @@ function TempCard() {
 
     useGSAP(() => {
 
-        const rise = new SplitType('#arise', {
-            types: 'words, chars, lines',
+        // const rise = new SplitType('#arise', {
+        //     types: 'words, chars, lines',
+        // });
+        const slide = new SplitType('#feels', {
+               types: 'words, chars',
         });
 
-        gsap.from(rise.chars, {
+        gsap.from(slide.words, {
+             y: 20,
+             opacity: 0,
+             duration: 1.5,
+             ease: 'expo.inOut',
+             stagger: 1,
+             delay: 1.5,
+        });
+
+        gsap.from('#arise', {
             y: -100,
             opacity: 0,
-            duration: 2,
+            duration: 1,
             ease: 'power3.inOut',
-            stagger: 0.3,
-        })
+            // delay: 2,
+            // stagger: 0.3,
+        });
 
         const card = mainRef.current;
-        // let state;
-        // state = Flip.getState(card);
-        // // card.style.transform = 'translateY(100px)';
-
-        // gsap.set(card, { y: -300 });
-
-        // Flip.from(state, {
-        // targets: card,
-        // duration: 3,
-        // ease: 'power2.out',
-        // absolute: true,
-        // onComplete: () => {
-        //     // gsap.set(card, {ease: 'back.inOut', y: 0});
-
-        //     gsap.to(card, {
-        //         y: 0,
-        //         ease: 'back.inOut',
-        //         duration: 3,
-        //         absolute: true,
-        //     })
-
-        // }
-        
-        // }); 
+        gsap.from('#MainCard', {
+            y: -100,
+            opacity: 0,
+            ease: 'bounce.out',
+            duration: 1.5,
+            absolute: true,
+        });
 
     }, { scope: mainRef}) /*for cleanup*/
 	return (
 
         /* flex maybe */
-	<div className="relative width height high-temprature rounded"
+	<div className="relative width height high-temprature rounded y-0 opacity-1"
     id='MainCard'
     ref={mainRef}>
         <div className='absolute inset-0 grid grid-rows-3 gap-1 md:gap-2 place-items-center'>
@@ -95,7 +91,8 @@ function TempCard() {
         id='arise'>38°C</header>
 		<p className="font-poppins font-extralight 
 			text-4xl sm:text-3xl md:text-5xl lg:text-[3.3rem]
-			tracking-widest text-shadow-2xl">Feels Like <span className='tracking-wide'>35°</span></p>
+			tracking-widest text-shadow-2xl opacity-1 y-0"
+            id='feels'>Feels Like <span className='tracking-wide'>35°</span></p>
 		<p className="font-poppins font-light
 			text-[1.2rem] sm:text-[1rem] md:text-[1.6rem] lg:text-[1.75rem] self-start
 			tracking-widest pt-1">Lowest 31° | Highest 40°</p>
@@ -155,8 +152,8 @@ function StatusCard() {
            bg-gray-50/50 col-span-2 
            justify-self-center self-start shadow rounded-xl px-8 sm:px-6 md:px-12 lg:px-14
            md:rounded-2xl
-           grid grid-rows-3 grid-cols-2 place-items-center  gap-y-4 sm:gap-y-3 md:gap-y-4 lg:gap-y-3 
-           gap-x-20 sm:gap-x-12 md:gap-x-28 lg:gap-x-32'>        
+           grid-rows-3 grid-cols-2 place-items-center  gap-y-4 sm:gap-y-3 md:gap-y-4 lg:gap-y-3 
+           gap-x-20 sm:gap-x-12 md:gap-x-28 lg:gap-x-32 grid'>        
               <p className='font-inter font-bold text-size 
               tracking-wide'>15 KM/h SE </p>
               <img src={windIcon} alt='wind icon' className='size-6 sm:size-4 md:size-7'/>

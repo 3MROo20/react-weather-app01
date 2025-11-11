@@ -1,8 +1,9 @@
-import React, { forwardRef, Suspense, use, useImperativeHandle } from 'react';
+import React, { forwardRef, Suspense, use, useImperativeHandle, useLayoutEffect } from 'react';
 import { useState, useRef, useEffect, } from 'react';
 import { useNavigate } from "react-router-dom";
 import './index.css';
 import gsap from 'gsap';
+import { Flip } from 'gsap/Flip';
 import * as THREE from 'three';
 import { Canvas, extend, useThree } from '@react-three/fiber';
 import { useGLTF, OrbitControls, useTexture, Box, 
@@ -13,6 +14,10 @@ import { useGLTF, OrbitControls, useTexture, Box,
 	  ContactShadows,
 	  Loader,
 	  Html} from '@react-three/drei';
+import { useGSAP } from '@gsap/react';
+import SplitType from 'split-type';
+import useSound from 'use-sound';
+	  gsap.registerPlugin(Flip);
 
 
 
@@ -33,6 +38,8 @@ export default function SearchPage() {
 	 {/* <TestMeshScene /> */}
 	 <TreeScene /> 
 	{/* <TextCard />*/}
+	{/* <TestCard /> */}
+	<BackgroundMusic />
 	</div>
 
 );
@@ -47,7 +54,7 @@ function Clock() {
       setTime(new Date());
     }, 1000); // update every second
 
-    return () => clearInterval(timer); // cleanup
+    return () => clearInterval(timer); 
   }, []);
 
   useEffect(() => {
@@ -64,8 +71,8 @@ function Clock() {
     minute: '2-digit' 
   });
 
-  return <p style={{animation: pulse &&  'pulse 15s ease 1'}} 
-  	className="time">{formattedTime}</p>;
+  return <div style={{animation: pulse &&  'pulse 15s ease 1'}} 
+  	className="time">{formattedTime}</div>;
 }
 
 function TheSun() {
@@ -139,6 +146,7 @@ function ToSearch() {
 	}, [grow]); 
 
 
+
  const svg = <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" 
  	viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" 
  	strokeLinecap="round" strokeLinejoin="round"> 
@@ -158,7 +166,7 @@ function ToSearch() {
 
 		 {/*Placeholder part*/}
 		<div className="PHolder" style={{ width: grow && '0'}}>
-			<p ref={pRef} style={{ opacity: '1'}}>
+			<p ref={pRef} style={{ opacity: '1', translateX: '0'}}>
 			Enter a city name</p>
 			 </div> 
 			<ToNavigate grow={grow} clicked={clicked} /> 
@@ -170,8 +178,9 @@ function Tree() {
  
 	const { scene } = useGLTF('/models/treescene.glb');
 	const treeRef = useRef();
-
-
+	// const [ jumped, setJumped ] = useState(false);
+	
+	
 	const leafMap = useTexture('/textures/leaves.jpg');
 	const appleMap = useTexture('/textures/apple.jpg');
 	const trunkMap = useTexture('/textures/tree2.jpg');
@@ -181,7 +190,7 @@ function Tree() {
 	const backgroundEMap = useTexture('/textures/mud2.jpg');
 	// const topEMap = useTexture('/textures/terrain2.jpg');
 	const leafMap2 = useTexture('/textures/leaves2.jpg');
-
+	
 	{/* background Wrapping & Sharpness _main texture */}
 	gtopMap.wrapS = gtopMap.wrapT = THREE.MirroredRepeatWrapping;
 	gbottomMap.wrapS = gbottomMap.wrapT = THREE.ClampToEdgeWrapping;
@@ -198,6 +207,8 @@ function Tree() {
 	leafMap.minFilter = THREE.LinearMipMapLinearFilter;
 
 	useEffect(() => { 
+		// scene.background = new THREE.Color('#cce7ff');
+		// scene.fog = new THREE.Fog('#cce7ff', 5, 20);
 
 		// traverse is like forEach but instead of mapping over an array items, it mapps 
 		// over an object descendants (meshes), below, we assin a material to all meshes of Tree
@@ -223,7 +234,7 @@ function Tree() {
 				 alphaTest: 0.5,
 				 side: THREE.DoubleSide,
 
-			 })
+				})
 			child.castShadow = true;
 			break
 			
@@ -268,69 +279,108 @@ function Tree() {
 			}
 
 
+			// return () => {
+			// 	scene.fog = null;
+			// }
 	}))
 	}, [scene, leafMap, appleMap, trunkMap, gtopMap, gbottomMap, backgroundAMap,
 		backgroundEMap, leafMap2]);
 
-		useEffect(() => { {/* will refine the animation later */}
-			const tl = gsap.timeline({onComplete: TreeScene, delay: 0.5, ease: 'backIn'});
-					if (!treeRef.current) return
-						tl.fromTo(treeRef.current.position, {
-							x: 1.5, y: -0.5, z: 0,
-							duration: 1,
-						}, 
-					{
-						x: 5.2, y: -4.2, z: 0,
-					})
+		useLayoutEffect(() => {
+			// const tl = gsap.timeline({onComplete: TreeScene, delay: 0.5, ease: 'expo.in' });
+			// 		if (!treeRef.current) return
+			// 			tl.fromTo(treeRef.current.position, {
+			// 				x: 1.5, y: -0.5, z: 0,
+			// 			}, 
+			// 			{
+			// 				x: 5.2, y: -4.2, z: 0,
+			// 				duration: 2.5,
+			// 		})
 
-					if (!treeRef.current) return
-						tl.fromTo(treeRef.current.rotation, {
-							x: 0, y: -3.00, z: -0.045,
-							duration: 1,
-						}, 
-					{
-						x: 0, y: -3.35, z: -0.045,	
-					})
+			// 		if (!treeRef.current) return
+			// 			tl.fromTo(treeRef.current.rotation, {
+			// 				x: 0, y: -3.00, z: -0.045,
+			// 			}, 
+			// 		{
+			// 			x: 0, y: -3.35, z: -0.045,	
+			// 			duration: 4.5,
+			// 		}, '<'
+			// );
 					
-					// scale={2.5} position={[1.5, 0, 0]} rotation={[0, -2.60, -0.045]
+			// 		if (!treeRef.current) return
+			// 			tl.fromTo(treeRef.current.scale, {
+			// 				x: 2.55, y: 2.55, z: 2.55,	
+			// 			}, 
+			// 		{
+			// 				x: 3, y: 3, z: 3,
+			// 				duration: 6,
+			// 			}, 
+			// '<')
+						
+						// ease: 'power4',  // the more the power the more dramatic and slow easing becomes
+										// and so vice versa
+			//   return () => tl.kill();
+			}, []);
 
-					if (!treeRef.current) return
-						tl.fromTo(treeRef.current.scale, {
-							x: 2.5, y: 2.5, z: 2.5,	
-							duration: 1,
-						}, 
-					{
-						x: 3, y: 3, z: 3,
-					})
-					}, [treeRef])
+		// useGSAP(() => {
 
-	
-	// onReady is active when the scene is apparent 
-// 	const _ready = useRef(false);
-// 	useEffect(() => {
-// 		if (scene && !_ready.current) {
-// 			_ready.current = true;
-// 		if(typeof onReady === 'function') onReady();
-// 	}
-// }, [scene, onReady]);
-
-	// primitives are used to integrate existing Three.js objects
-	// commonly used with loaded 3D models like GLTF files
-	return <primitive ref={treeRef} object={scene} scale={3} position={[5.2, -4.2, 0]} rotation={[0, -3.35, -0.045]} />
-	{/* here I noticed that I can animate the rotation of y axis instead of the camera it will give the exact movement that I want */}
-	{/* from rotatoin {0, -3.00, -0.045} to rotation={[0, -3.35, -0.045]} I can even animate the z rotation too
-		for a cinematic intro*/}
+		// 		const state = Flip.getState(treeRef.current, {
+		// 			props: 'position,rotation,scale',
+		// 			simple: true     // for optimization 
+		// 		});
+				
+		// 		setJumped(prev => !prev);
+				
+		// 		requestAnimationFrame(() => {
+					
+		// 			Flip.from(state, {duration: 15, 
+		// 				ease: 'back.inOut',
+		// 				three: true   // crucial for 3D support
+		// 			})
+		// 		})
+		
+		// }, [treeRef]) Flip with 3D is a bit tricky, commenting it for now
+		
+			
+	return <primitive ref={treeRef} 
+	object={scene} 
+	scale={3} 
+	position={[5.2, -4.2, 0]} 
+	rotation={[0, -3.35, -0.045]} />
 
 }
 
+function CameraAnimation() {
+	const { camera } = useThree();
+
+	useLayoutEffect(() => {
+						gsap.fromTo(camera.position, {
+							x: -20, y: 15, z: 33,
+						}, 
+						{
+							x: 0, y: 2, z: 15,
+							delay: 1.5,
+							duration: 8,
+							ease: 'sine.inOut',
+							// onUpdate: () => {
+							// 	camera.lookAt();
+							// },
+					})
+		}, []);
+}
+
 function TreeScene() {
-	// const [loaded, setLoaded] = useState(false);
 
 	return (
 		<>
 			<div className='row-start-4 col-span-3 w-full h-[270px]'>
 		<Canvas camera={{ position: [0, 2, 15], fov:60, near:0.1, far:100}} 
-		shadows dpr={[1, 2]} gl={{ shadowMapType: THREE.PCFSoftShadowMap }}
+		shadows dpr={[1, 1.5]} onCreated={({ gl }) => {
+			const isMobile = window.innerWidth < 768;
+			gl.shadowMap.enabled = isMobile;
+			gl.shadowMap.type = THREE.PCFSoftShadowMap;
+			// for performance and optimization.. taking into consideration mobile devices
+		}}
 		>
 			<directionalLight color={'#FFE484'} position={[2, 8, 0]} intensity={0.8} castShadow
 			shadow-mapSize-width={1024} shadow-mapSize-height={1024} 
@@ -338,41 +388,50 @@ function TreeScene() {
 			shadow-camera-left={-10} shadow-camera-right={10}
 			shadow-camera-top={10} shadow-camera-bottom={-10} shadow-color={'#FFE484'} />
 				<ambientLight intensity={0.5}/>
-				<hemisphereLight intensity={0.3}  skyColor={'#FFE484'} groundColor={'#743E0C'} />
 			<Suspense fallback={<TextCard />}>
+			<fogExp2 attach='fog' args={['#cce7ff', 0.025]} />
+			{/* <color attach='background' args={['#588157']}/> */}
      		<Tree /> 	
 			</Suspense>
 			<OrbitControls />
-			<Environment preset='sunset' /> 
+			<Environment preset='sunset' resolution={256} /> 
+			<CameraAnimation />
 		</Canvas>
 		</div>
-		{/* {!loaded && <TextCard />} */}
 		</>
 	
 	);
 }
 
-// will be done in animation stage later
+{/* // will be done in animation stage later */}
 function TextCard() {
-		// const animateRef = useRef();
-	 
-	//  animateRef.current.position maybe like this
-	//  useEffect(() => {
-	// 	if(!animateRef.current) return
-	// 	   gsap.to(animateRef.current, {  
-	// 		// from-indigo-50 from-30% via-gray-50/30 via-60% to-gray-50/0 to-85%
-	// 		backgroundImage: 'linear-gradient()',
-	// 		ease: 'circ.inOut',
-	// 		duration: 3,
-	// 		repeat: -1,
-	// 		yoyo: true,
-	// 	})
+	    const grRef = useRef();
 
-	//    }, [animateRef])
+		// useGSAP(() => {
+
+		// 	// useGSAP does the same work as gsap.context
+		// 	const ctx = gsap.context(() => {
+		// 		gsap.fromTo(grRef.current, {
+		// 					background: 'linear-gradient(to right, #eef2ff 10%, #eef2ff40 0%, #eef2ff20 90%)',
+		// 					ease: 'power4.inOut',
+		// 					duration: 6,
+		// 					repeat: -1,
+		// 					yoyo: true
+		// 				}, 
+		// 				{
+		// 					background: 'linear-gradient(to right, #eef2ff 100%, #eef2ff40 0%, #eef2ff20 90%)',
+		// 					ease: 'power4.inOut',
+		// 					duration: 6,
+		// 					repeat: -1,
+		// 					yoyo: true
+		// 			});
+		// 	}, grRef.current);
+		// 	return () => ctx.revert();    // for clean up
+		// }, []);
 
 	return (
 		<Html fullscreen>
-			<div className='w-full h-fit flex justify-center'> 
+			<div ref={grRef} className='w-full h-fit flex justify-center'> 
 		<div className='w-fit h-fit x-0 px-44 py-4 cardGradient rounded-xl
 		 font-poppins font-medium text-lg'>Loading...</div>
 			</div>
@@ -380,30 +439,82 @@ function TextCard() {
 	);
 }
 
-// temporarily commented, will be done in animation stage
-// function CameraAnimation() {
-// 		const { camera } = useThree();
+function BackgroundMusic() {
+		const [playBg] = useSound('/sounds.MainVersion.mp3', { 
+			volume: 2, loop: true
+		});
 
-// 		useEffect(() => {
-// 			const radiusX = 5;
-// 			const radiusZ = 3;
+		function handleClick() {
+			playBg();
+		}
 
-// 			gsap.to(camera.position, {
-// 				duration: '2',
-// 				ease: 'back.inOut',
-// 				onUpdate: () => {
-// 					const tl = gsap.timeline().time()
-// 					camera.position.x = Math.cos( tl * 0.3) * radiusX
-// 					camera.position.z = Math.sin(tl * 0.3) * radiusZ
-// 					camera.lookAt(0, 0, 0);
-// 				},
-// 			})
+		// howler library is for more advanced stuff, and stuff that require more control, like
+		// games and advanced 3D website etc anyway must give it a try later
 
-// 		}, [camera]);
+		// import { Howl } from 'howler';
+		// const btnSound = new Howl({
+		// 	src: ['/sounds/btn/.mp3'],
+		// 	volume: 0.7,
+		// 	loop: false
+		// });
+		// btnSound.play();
 
-// 		return null;
-// }
+	//  return (
+	// 	// <button onClick={handleClick}>Start journey</button>
+	//  );
+}
 
+{/* // music name: poem of the wind
+function TestCard() {
+		// const [ gradient, setGradient ] = useState(false);
+		const grRef = useRef();
+
+		useGSAP(() => {
+			// const state = Flip.getState(grRef.current, { 
+			// 	props: 'opacity,backgroundColor,transform,backgroundImage',
+			// })
+
+			// setGradient(prev => !prev);
+			
+			// // needs to delay Flip a bit so that React gets to update the DOM
+			// // without this, the DOM never gets updated thus there's no change; Flip doesn't
+			// // know what to actually measure.
+			// requestAnimationFrame(() => { or useLayoutEffect(() => {});
+			// 	Flip.from(state, {
+			// 		ease: 'power4',
+			// 		duration: 1.5,
+			// 		repeat: -1,
+			// 		yoyo: true,
+			// 		onRepeat: () => setGradient(prev => !prev),
+			// 	});
+			// });
+
+			gsap.fromTo(grRef.current, {
+				background: 'linear-gradient(to right, #eef2ff 10%, #eef2ff40 0%, #eef2ff20 90%)',
+				ease: 'power4.inOut',
+				duration: 10,
+				repeat: -1,
+				yoyo: true
+			}, 
+			{
+				background: 'linear-gradient(to right, #eef2ff 100%, #eef2ff40 0%, #eef2ff20 90%)',
+				ease: 'power4.inOut',
+				duration: 10,
+				repeat: -1,
+				yoyo: true
+		});
+
+		}, [grRef]);
+
+	return (
+		<div 
+		className='card h-fit x-0 px-44 py-4 cardGradient rounded-xl
+		flex justify-center row-4 col-span-3'>
+		<p className='font-poppins font-medium text-lg'>Loading...</p>
+	</div>		
+
+	);
+} */}
 
 
 	function ToNavigate ({ grow , clicked }) {
@@ -425,69 +536,3 @@ function TextCard() {
 				}, [grow, clicked, navigate]);
 		return null;
 } 
-
-
-
-
-//API Refrence modern way
-/* useEffect(() => {
-				// let switcher;	
-
-			const fetchData = async () => {
-					try {
-			const res = await fetch("https://api.api-ninjas.com/v1/facts?limit=" + limit, {
-				method: 'GET',
-				headers: {
-					'X-Api-Key': 'ubDKKf7I6bD1QdKa1xYrdg==qkR4uAnQAFKwNM7V',
-					'Content-Type': 'application/json',
-				},
-					});
-			
-		    	const data = await res.json(); 
-		    // switcher = setTimeout(() => {
-		    //  setNext(prev => !prev);
-			// 	 }, 10000);
-					setQuote(data); // api returns the array, we take 
-																	// first quote, second author
-					} catch (err) {
-						console.error(err);
-					}
-						
-				};
-
-				fetchData();
-				// return () => clearTimeout(switcher);
-			}, [quote]);
-
-			if (quote) return <div className="flex justify-start items-center
-				row-start-4"> 
-				<p className="text-base sm:text-md md:text-lg 
-					font-bold transition">Waiting...</p></div> */
-
-//API Reference old-school clearer to me 
-// useEffect(() => {
-// 	const [quote, setQuote] = useState(null);
-
-// 	fetch('https', {
-// 		headers: {
-// 			'x-Api-Key': 'my-API-Key',
-// 			'content-type': 'my-content-type',
-// 		}
-// 	})
-// 	.then(res => res.json())
-// 	.then(data => {
-// 		setQuote(data[0]);
-// 	})
-// 	.catch(err => {
-// 		console.error('Error happened:', err);
-// 	})
-	
-// }, []);
-
-// if(!quote) return <div>Loading...</div>
-
-// return(
-// 	<div>
-// 		<p>{quote.author}</p>
-// 	</div>
-// )

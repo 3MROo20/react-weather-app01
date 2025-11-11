@@ -22,7 +22,6 @@ body {
 	font-family: 'Roboto', sans-serif;
 	font-weight: 100;
 	font-size: clamp(2rem, 2rem + 3vw, 5rem);  
-	font-weight: 100;
 	font-style: italic;
 	background-color: #444;
 	overflow: hidden;
@@ -196,10 +195,10 @@ input {
     }
 
 	.cardGradient {
-		@apply bg-gradient-to-r from-indigo-50 from-30% via-gray-50/30 via-60% to-gray-50/0 to-85%;
+		@apply bg-gradient-to-r from-indigo-50 from-30% via-gray-50/40 via-60% to-gray-50/0 to-85%;
 	}
 
-}
+} 
 
 /* Plain CSS Utility Classes */
 @layer utilities {
