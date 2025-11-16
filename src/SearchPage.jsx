@@ -13,11 +13,20 @@ import { useGLTF, OrbitControls, useTexture, Box,
 	  MeshReflectorMaterial, shaderMaterial,
 	  ContactShadows,
 	  Loader,
-	  Html} from '@react-three/drei';
+	  Html,
+	  useProgress,
+	  Preload} from '@react-three/drei';
 import { useGSAP } from '@gsap/react';
 import SplitType from 'split-type';
 import useSound from 'use-sound';
+import { Howl, Howler } from 'howler';
+import { create } from 'zustand';
 	  gsap.registerPlugin(Flip);
+import clouds from '/src/resultPageAssests/icons/distancedclouds.svg';
+import cloudMain from '/src/resultPageAssests/icons/maincloud.svg';
+import cloudSecond from '/src/resultPageAssests/icons/secondcloud.svg';
+import background from '/src/resultPageAssests/icons/glassbackground.svg'; 
+import arrowDown from '/src/resultPageAssests/icons/arrow.svg';
 
 
 
@@ -25,25 +34,34 @@ export default function SearchPage() {
 	const [ active, setActive ] = useState(false);
 
 
-
 	return (
+		<> 
+		{/* SearchPage Background  */}
+	<div className='relative'> 
+		<div className="absolute min-h-screen inset-0 -z-10 blur-[2px] bg-cover bg-center 
+		bg-no-repeat bg-[url(/src/resultPageAssests/images/MagicalCastle.jpg)]">
+		  </div>
+		  <p className='opacity-0 text-3xl'>Hello World</p>
+	</div>
 	<div className={`container ${active && "grid"}`} 
 		onDoubleClick={() => setActive(!active)}>
 	 <Clock/>  
 	 <TheSun />
 	 <ToSearch />
-	 {/* <TheTree /> b */}
-	 {/* <APIcard /> temporarily commented */}
 	 <ToNavigate />
-	 {/* <TestMeshScene /> */}
 	 <TreeScene /> 
-	{/* <TextCard />*/}
-	{/* <TestCard /> */}
 	<BackgroundMusic />
+	<Clouds /> 
+	<Arrow />
 	</div>
+		</>
 
 );
 }
+
+
+
+
 // for real time data 
 function Clock() {
   const [time, setTime] = useState(new Date());
@@ -75,6 +93,9 @@ function Clock() {
   	className="time">{formattedTime}</div>;
 }
 
+
+
+
 function TheSun() {
 		const [rotate, setRotate] = useState(false);
 
@@ -86,10 +107,13 @@ function TheSun() {
 	}, []);
 
 	return (
-	  <img  className="Sun" src="/src/suny-day.png"id="sun" 
+	  <img className="Sun" src="/src/suny-day.png"id="sun" 
 	  style={{animation: rotate && 'rotate 15s linear infinite'}}/>
 	);
 }
+
+
+
 
 /* The code in this component needs to be cleaned it's 
 so messy */
@@ -140,11 +164,10 @@ function ToSearch() {
 			toTime = setTimeout(() => {
 			pRef.current.style.display = 'block';
 			pRef.current.style.opacity = '1';
-			}, 500);
+			}, 1300);
 		}
 		return () => clearTimeout(toTime);
 	}, [grow]); 
-
 
 
  const svg = <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" 
@@ -165,7 +188,7 @@ function ToSearch() {
 			</button>   
 
 		 {/*Placeholder part*/}
-		<div className="PHolder" style={{ width: grow && '0'}}>
+		<div className="PHolder" style={{ width: grow && '0', border: grow && '0'}}>
 			<p ref={pRef} style={{ opacity: '1', translateX: '0'}}>
 			Enter a city name</p>
 			 </div> 
@@ -174,13 +197,17 @@ function ToSearch() {
 	); 
 }
 
+
+
+
 function Tree() {
  
 	const { scene } = useGLTF('/models/treescene.glb');
 	const treeRef = useRef();
-	// const [ jumped, setJumped ] = useState(false);
+	const progress = useAppStore((s) => s.progress);
+	const globalClick = useAppStore((s) => s.globalClick);
 	
-	
+
 	const leafMap = useTexture('/textures/leaves.jpg');
 	const appleMap = useTexture('/textures/apple.jpg');
 	const trunkMap = useTexture('/textures/tree2.jpg');
@@ -188,7 +215,6 @@ function Tree() {
 	const gbottomMap = useTexture('/textures/mud2.jpg');
 	const backgroundAMap = useTexture('/textures/mud.jpg');
 	const backgroundEMap = useTexture('/textures/mud2.jpg');
-	// const topEMap = useTexture('/textures/terrain2.jpg');
 	const leafMap2 = useTexture('/textures/leaves2.jpg');
 	
 	{/* background Wrapping & Sharpness _main texture */}
@@ -207,25 +233,45 @@ function Tree() {
 	leafMap.minFilter = THREE.LinearMipMapLinearFilter;
 
 	useEffect(() => { 
-		// scene.background = new THREE.Color('#cce7ff');
-		// scene.fog = new THREE.Fog('#cce7ff', 5, 20);
+		const apple02 = scene.getObjectByName('Sphere_2');
+		const apple05 = scene.getObjectByName('Sphere_5');
+
+		if(progress === 100 && globalClick && apple02) {
+			gsap.to(apple02.position, {   // GSAP can't animate objects directly, it has to animate their .position or .rotation just like in camera example
+				delay: 25,
+				y: apple02.position.y -195,    // animating the y position...
+				duration: 2.5, 
+				ease: 'bounce',
+			})
+		}
+		if(progress === 100 && globalClick && apple05) {
+			gsap.to(apple05.position, {
+				delay: 20,
+				y: apple05.position.y -90,  
+				duration: 2, 
+				ease: 'bounce',
+				
+			})
+		}
 
 		// traverse is like forEach but instead of mapping over an array items, it mapps 
 		// over an object descendants (meshes), below, we assin a material to all meshes of Tree
 		scene.traverse((child => {
-		if(child.isMesh) {
-			switch(child.name) {
-				case 'Trunk':
-					child.material = new THREE.MeshStandardMaterial({
-					map: trunkMap,
-					roughness: 0.4,
-					metalness: 0,
-					color: '#AB7541',
-		   })  			
-			break
-
+			console.log(child.name);
+			if(child.isMesh) {
+				switch(child.name) {
+					case 'Trunk':
+						child.material = new THREE.MeshStandardMaterial({
+							map: trunkMap,
+							roughness: 0.4,
+							metalness: 0,
+							color: '#AB7541',
+						})  		
+						break
+						
+			// lowering some materials to maintain performance 
 		   case 'leaf':
-			 child.material = new THREE.MeshPhysicalMaterial({
+			 child.material = new THREE.MeshStandardMaterial({
 				 map: leafMap2,
 				 color: '#90EE90',
 				 roughness: 0.5,
@@ -253,7 +299,7 @@ function Tree() {
 			
 			
 			case 'ground_bottom':
-				child.material = new THREE.MeshPhysicalMaterial({
+				child.material = new THREE.MeshStandardMaterial({
 				map: backgroundAMap,
 				aoMap: gbottomMap,
 				emissiveMap: backgroundEMap,
@@ -266,80 +312,23 @@ function Tree() {
 				
 	}
 			if(child.name.startsWith('Sphere')) {
-			child.material = new THREE.MeshPhysicalMaterial({
+			child.material = new THREE.MeshStandardMaterial({
 					map: appleMap,
-					roughness: 0.5,
+					roughness: 0.4,
 					metalness: 0.1,
-					clearcoat: 0.5,
-					clearcoatRoughness: 0.3, 
+					// clearcoat: 0.5,
+					// clearcoatRoughness: 0.3, 
 					color: '#D20A2E',
 					opacity: 0.5,
 				}) 
+			child.receiveShadow = true;
 			child.castShadow = true;
 			}
 
-
-			// return () => {
-			// 	scene.fog = null;
-			// }
+			
 	}))
 	}, [scene, leafMap, appleMap, trunkMap, gtopMap, gbottomMap, backgroundAMap,
-		backgroundEMap, leafMap2]);
-
-		useLayoutEffect(() => {
-			// const tl = gsap.timeline({onComplete: TreeScene, delay: 0.5, ease: 'expo.in' });
-			// 		if (!treeRef.current) return
-			// 			tl.fromTo(treeRef.current.position, {
-			// 				x: 1.5, y: -0.5, z: 0,
-			// 			}, 
-			// 			{
-			// 				x: 5.2, y: -4.2, z: 0,
-			// 				duration: 2.5,
-			// 		})
-
-			// 		if (!treeRef.current) return
-			// 			tl.fromTo(treeRef.current.rotation, {
-			// 				x: 0, y: -3.00, z: -0.045,
-			// 			}, 
-			// 		{
-			// 			x: 0, y: -3.35, z: -0.045,	
-			// 			duration: 4.5,
-			// 		}, '<'
-			// );
-					
-			// 		if (!treeRef.current) return
-			// 			tl.fromTo(treeRef.current.scale, {
-			// 				x: 2.55, y: 2.55, z: 2.55,	
-			// 			}, 
-			// 		{
-			// 				x: 3, y: 3, z: 3,
-			// 				duration: 6,
-			// 			}, 
-			// '<')
-						
-						// ease: 'power4',  // the more the power the more dramatic and slow easing becomes
-										// and so vice versa
-			//   return () => tl.kill();
-			}, []);
-
-		// useGSAP(() => {
-
-		// 		const state = Flip.getState(treeRef.current, {
-		// 			props: 'position,rotation,scale',
-		// 			simple: true     // for optimization 
-		// 		});
-				
-		// 		setJumped(prev => !prev);
-				
-		// 		requestAnimationFrame(() => {
-					
-		// 			Flip.from(state, {duration: 15, 
-		// 				ease: 'back.inOut',
-		// 				three: true   // crucial for 3D support
-		// 			})
-		// 		})
-		
-		// }, [treeRef]) Flip with 3D is a bit tricky, commenting it for now
+		backgroundEMap, leafMap2, progress, globalClick]);
 		
 			
 	return <primitive ref={treeRef} 
@@ -350,51 +339,61 @@ function Tree() {
 
 }
 
+
+
+
 function CameraAnimation() {
 	const { camera } = useThree();
+	const progress = useAppStore((state) => state.progress);
+	const globalClick = useAppStore((s) => s.globalClick);  
 
 	useLayoutEffect(() => {
+					if (progress === 100 && globalClick) {
 						gsap.fromTo(camera.position, {
-							x: -20, y: 15, z: 33,
+							x: -20, y: 15, z: 35,
 						}, 
 						{
+							delay: 0.95,
 							x: 0, y: 2, z: 15,
-							delay: 1.5,
-							duration: 8,
+							duration: 11,  // duration also play part in the syncing
 							ease: 'sine.inOut',
-							// onUpdate: () => {
-							// 	camera.lookAt();
-							// },
 					})
-		}, []);
-}
 
-function TreeScene() {
+					}
+		}, [progress, globalClick]);
+	}
+	
 
+
+
+	function TreeScene() {
+		
+		
 	return (
 		<>
 			<div className='row-start-4 col-span-3 w-full h-[270px]'>
-		<Canvas camera={{ position: [0, 2, 15], fov:60, near:0.1, far:100}} 
-		shadows dpr={[1, 1.5]} onCreated={({ gl }) => {
-			const isMobile = window.innerWidth < 768;
-			gl.shadowMap.enabled = isMobile;
+		<Canvas camera={{ position: [-20, 15, 35], fov:60, near:0.1, far:100}} 
+		    shadows dpr={[1.5, 2]} onCreated={({ gl }) => {
+		    const isMobile = window.innerWidth < 768;
+			gl.shadowMap.enabled = !isMobile;
 			gl.shadowMap.type = THREE.PCFSoftShadowMap;
 			// for performance and optimization.. taking into consideration mobile devices
-		}}
+		}} 
 		>
-			<directionalLight color={'#FFE484'} position={[2, 8, 0]} intensity={0.8} castShadow
+			<directionalLight color={'#FFE484'} position={[2, 8, 0]} intensity={1.5} castShadow
 			shadow-mapSize-width={1024} shadow-mapSize-height={1024} 
 			shadow-camera-near={0.5} shadow-camera-far={500} 
 			shadow-camera-left={-10} shadow-camera-right={10}
 			shadow-camera-top={10} shadow-camera-bottom={-10} shadow-color={'#FFE484'} />
-				<ambientLight intensity={0.5}/>
+				<ambientLight intensity={0.6}/>
 			<Suspense fallback={<TextCard />}>
-			<fogExp2 attach='fog' args={['#cce7ff', 0.025]} />
-			{/* <color attach='background' args={['#588157']}/> */}
+			<LoadProgress />
+			<fogExp2 attach='fog' args={['#cce7ff', 0.023]} />
      		<Tree /> 	
+            <Environment preset='sunset' resolution={256} />
+			<Preload all />  {/*to preload all the assests in the background*/}
 			</Suspense>
 			<OrbitControls />
-			<Environment preset='sunset' resolution={256} /> 
 			<CameraAnimation />
 		</Canvas>
 		</div>
@@ -403,55 +402,98 @@ function TreeScene() {
 	);
 }
 
-{/* // will be done in animation stage later */}
-function TextCard() {
-	    const grRef = useRef();
 
-		// useGSAP(() => {
 
-		// 	// useGSAP does the same work as gsap.context
-		// 	const ctx = gsap.context(() => {
-		// 		gsap.fromTo(grRef.current, {
-		// 					background: 'linear-gradient(to right, #eef2ff 10%, #eef2ff40 0%, #eef2ff20 90%)',
-		// 					ease: 'power4.inOut',
-		// 					duration: 6,
-		// 					repeat: -1,
-		// 					yoyo: true
-		// 				}, 
-		// 				{
-		// 					background: 'linear-gradient(to right, #eef2ff 100%, #eef2ff40 0%, #eef2ff20 90%)',
-		// 					ease: 'power4.inOut',
-		// 					duration: 6,
-		// 					repeat: -1,
-		// 					yoyo: true
-		// 			});
-		// 	}, grRef.current);
-		// 	return () => ctx.revert();    // for clean up
-		// }, []);
+
+	function LoadProgress() {
+		const { progress } = useProgress();
+		// Getting the action functions, so that we can update progress here in TreeScene
+		const setProgress = useAppStore((state) => state.setProgress);
+
+		useLayoutEffect(() => {
+			// progress here is the progress of useProgress hook not AppStore progress
+			setProgress(progress);			// updating the progress
+
+		}, [progress, setProgress]);
+			
+	}
+
+
+
+	function TextCard() {
+			// Getting the value.. so we can read current progress (state.progress)
+			const progress = useAppStore((state) => state.progress)
 
 	return (
 		<Html fullscreen>
-			<div ref={grRef} className='w-full h-fit flex justify-center'> 
-		<div className='w-fit h-fit x-0 px-44 py-4 cardGradient rounded-xl
-		 font-poppins font-medium text-lg'>Loading...</div>
+			<div className='w-full h-fit flex justify-center'> 
+		<div className='w-fit h-fit x-0 px-44 py-4 cardGradient border-8 border-gray-50/80 rounded-xl
+		 font-poppins font-medium text-lg'>Loading... {Math.floor(progress)}%</div>
+		 											{/*  reading the value */}
 			</div>
 		</Html>
 	);
 }
 
-function BackgroundMusic() {
-		const [playBg] = useSound('/sounds.MainVersion.mp3', { 
-			volume: 2, loop: true
-		});
 
-		function handleClick() {
-			playBg();
-		}
+
+
+// 'Zustand is a React state management library, that makes sharing data across components more comfy
+// without needing so many props, etc..'
+export const useAppStore = create((set) => ({   // creating a store (shared data bucket)
+	count: 0,									// state
+	increaseCount: () => set((state) => ({ count: state.count + 1})),     // action function 
+
+	active: false,
+	inactive: () => set((state) => ({ active: !state.active })),
+	progress: 0,
+	setProgress: (value) => set({ progress: value }),
+	// or when the new value depend on the past value
+	// setProgress: () => set((state) => ({progress: state.progress + pastValue })),
+	
+	globalClick: false,
+	hasTriggered: false,						// ensuring no duplication variable
+	setGlobalClick: () => set((state) => {
+		if(state.hasTriggered) return state;   // don't trigger process again
+		return {
+			globalClick: true,
+			hasTriggered: true
+		};
+	}),
+	// start journey button, once clicked it starts 3 or more different things with different delay, 
+	// if clicked again it triggers nothing unless the page reloads
+	
+}));
+
+
+
+
+function BackgroundMusic() {
+		// using the global count state from AppStore
+		// const { count, increaseCount } = useAppStore();
+		const globalClick = useAppStore((s) => s.globalClick);
+		const progress = useAppStore((s) => s.progress);
+
+		// const [ play, setPlay ] = useState(false);
+
+		// useSound is a sound management library, it looks pretyy much like drei's useGLTF
+		// except it has normal braces [] rather than curly ones {}
+		// const [playBg, { stop }] = useSound('/sounds/mainversion.mp3', { 
+		// 	volume: 0.5, loop: true, 
+		// });
+
+		// function handleClick() {   // sound is not yet audible
+		// 	playBg();
+		// }
+		// function handlePause() {
+		// 	if(toStop) {
+		// 	 stop();
+		// 	}
+		// }
 
 		// howler library is for more advanced stuff, and stuff that require more control, like
 		// games and advanced 3D website etc anyway must give it a try later
 
-		// import { Howl } from 'howler';
 		// const btnSound = new Howl({
 		// 	src: ['/sounds/btn/.mp3'],
 		// 	volume: 0.7,
@@ -459,63 +501,142 @@ function BackgroundMusic() {
 		// });
 		// btnSound.play();
 
+		const btnSound = new Howl({
+			
+			src: ['/sounds/mainversion.mp3'],
+			volume: 0.5,
+			loop: false,
+		}); 
+		
+		useEffect(() => {
+			if (progress === 100 && globalClick) {
+				btnSound.play();
+				// sound repeat onDoubleClick stop sound
+			 }
+		 }, [globalClick, progress])
+
+		// function toggle() {
+		// 	useEffect(() => {
+		// 		setPlay(!play);
+		// 		if (play) {
+		// 			btnSound.play();
+		// 		} 
+		// 		else {
+		// 			  btnSound.pause();
+		// 		  }
+		// 	}, [play]);
+		// }
+				//  else if(!play && btnSound.play === 'true') {
+				// }
+// {play ? 'Start' : 'Stop'}  temporary commentd 
 	//  return (
-	// 	// <button onClick={handleClick}>Start journey</button>
-	//  );
+		// <div className='h-fit w-full row-start-4 justify- flex gap-2'> 
+		{/* <button className='row-start-4 justify-self-center' onClick={toggle}> start</button> */}
+		{/* <button className='row-start-4 justify-self-center' onClick={handleStop}> stop</button> */}
+		{/* <button className='row-start-4 justify-self-end' onClick={increaseCount}>increased {count} times</button> */}
+		{/* </div> 										 this is just another way to read value rather than defining 
+														a new value and assigning it useAppStore((state) => state.value) */}
+	// );
 }
 
-{/* // music name: poem of the wind
-function TestCard() {
-		// const [ gradient, setGradient ] = useState(false);
-		const grRef = useRef();
 
-		useGSAP(() => {
-			// const state = Flip.getState(grRef.current, { 
-			// 	props: 'opacity,backgroundColor,transform,backgroundImage',
-			// })
 
-			// setGradient(prev => !prev);
-			
-			// // needs to delay Flip a bit so that React gets to update the DOM
-			// // without this, the DOM never gets updated thus there's no change; Flip doesn't
-			// // know what to actually measure.
-			// requestAnimationFrame(() => { or useLayoutEffect(() => {});
-			// 	Flip.from(state, {
-			// 		ease: 'power4',
-			// 		duration: 1.5,
-			// 		repeat: -1,
-			// 		yoyo: true,
-			// 		onRepeat: () => setGradient(prev => !prev),
-			// 	});
-			// });
 
-			gsap.fromTo(grRef.current, {
-				background: 'linear-gradient(to right, #eef2ff 10%, #eef2ff40 0%, #eef2ff20 90%)',
-				ease: 'power4.inOut',
-				duration: 10,
-				repeat: -1,
-				yoyo: true
-			}, 
-			{
-				background: 'linear-gradient(to right, #eef2ff 100%, #eef2ff40 0%, #eef2ff20 90%)',
-				ease: 'power4.inOut',
-				duration: 10,
-				repeat: -1,
-				yoyo: true
-		});
+	function Clouds() {
+		 const progress = useAppStore((s) => s.progress);
+		 const [ appear, setAppear ] = useState(false);
+		 const globalClick = useAppStore((s) => s.globalClick);  // initiating globalClick button
+		 const setGlobalClick = useAppStore((s) => s.setGlobalClick);
 
-		}, [grRef]);
+			useEffect(() => {
+				// let t;
+				if(progress === 100) { 
+						setAppear(true);
+				}
+				if(progress === 100 && globalClick) {
+					gsap.to('#clGroup', {  
+						delay: 1,   // 0.1 difference from tree animation
+						scale: 2.5,
+						y: '1rem',
+						x: '8rem', 
+						opacity: 0,
+						display: 'none',
+						ease: 'sine.in', // same delay and slightly different ease = synced animation
+						duration: 7.4,
+					})
+				}
+				
+				
+				if(progress === 100 && globalClick) {
+					gsap.to('#topCloud', {
+						delay: 15, 
+						x: '-37rem',
+						ease: 'sine',
+						duration: 30,
+						repeat: -1, 
+						yoyo: true
+						
+					})
+					gsap.to('#bottomCloud', {
+						delay: 18,
+						x: '29rem', 
+						ease: 'sine',
+						duration: 30,
+						repeat: -1, 
+						yoyo: true
+					})
+				}
+			}, [progress, globalClick]);
+		 
+		 return (
+			<> 
+			<div className='relative w-fill h-fit'>   
+			     {/* Clouds group */}
+				<img onClick={setGlobalClick} 
+					className=
+					{`absolute bottom-28 left-4 translate-x-16 translate-y-10
+					 ${appear ? 'opacity-100' : 'opacity-0'} z-50 scale-100`}
+				 src={clouds}
+				 id='clGroup'/>
+			</div> {/*top clooud*/}
+				<img src={cloudMain}  
+				className='absolute w-72 h-fit bottom-1/2 left-1/2 translate-x-[19rem] translate-y-[17rem]
+				opacity-60 z-20'
+				id='topCloud'/>
+				<img className='absolute w-40 top-1/2 right-1/2 translate-x-[-19rem] translate-y-[23rem] 
+				opacity-60 z-10'
+				src={cloudMain}		  
+				id='bottomCloud'/> 
+				 {/*bottom cloud*/}
+				</>
 
-	return (
-		<div 
-		className='card h-fit x-0 px-44 py-4 cardGradient rounded-xl
-		flex justify-center row-4 col-span-3'>
-		<p className='font-poppins font-medium text-lg'>Loading...</p>
-	</div>		
+		 );
+	}
 
-	);
-} */}
+	function Arrow() {
+			const progress = useAppStore((s) => s.progress);
+			const globalClick = useAppStore((s) => s.globalClick);
+			const [ allowAnimate, setAllowAnimate ] = useState(false);
+			const [ hasGuided, setHasGuided ] = useState(false);
 
+			useEffect(() => {
+				if(hasGuided) return 
+				if(progress === 100 && !globalClick) {
+					setAllowAnimate(true);
+				}
+				else if(globalClick) {
+					setAllowAnimate(false);
+					setHasGuided(true);
+				} 
+			}, [progress, globalClick]);
+
+		return (
+			<div className='relative w-full h-fit'>
+				<img className={`absolute w-12 sm:w-8 md:w-16 bottom-[17rem] left-1/2 opacity-0 ${allowAnimate && 'animate-bounce opacity-100'}`}
+				 src={arrowDown}/>
+			</div>
+		);
+	}
 
 	function ToNavigate ({ grow , clicked }) {
 				const navigate = useNavigate(); // to use navigate hook
