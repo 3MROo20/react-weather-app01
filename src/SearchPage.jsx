@@ -24,8 +24,6 @@ import { create } from 'zustand';
 	  gsap.registerPlugin(Flip);
 import clouds from '/src/resultPageAssests/icons/distancedclouds.svg';
 import cloudMain from '/src/resultPageAssests/icons/maincloud.svg';
-import cloudSecond from '/src/resultPageAssests/icons/secondcloud.svg';
-import background from '/src/resultPageAssests/icons/glassbackground.svg'; 
 import arrowDown from '/src/resultPageAssests/icons/arrow.svg';
 
 
@@ -37,23 +35,25 @@ export default function SearchPage() {
 	return (
 		<> 
 		{/* SearchPage Background  */}
-	<div className='relative'> 
+	<div className='Background relative'> 
 		<div className="absolute min-h-screen inset-0 -z-10 blur-[2px] bg-cover bg-center 
 		bg-no-repeat bg-[url(/src/resultPageAssests/images/MagicalCastle.jpg)]">
 		  </div>
-		  <p className='opacity-0 text-3xl'>Hello World</p>
 	</div>
+	<div className='paddingContainer h-screen w-screen flex justify-center items-center'>
 	<div className={`container ${active && "grid"}`} 
 		onDoubleClick={() => setActive(!active)}>
 	 <Clock/>  
 	 <TheSun />
 	 <ToSearch />
-	 <ToNavigate />
+	 {/* <ToNavigate /> */}
 	 <TreeScene /> 
 	<BackgroundMusic />
 	<Clouds /> 
 	<Arrow />
+	{/* <WeatherData /> */}
 	</div>
+	</div>    {/*paddingConatinaer*/}
 		</>
 
 );
@@ -119,16 +119,30 @@ function TheSun() {
 so messy */
 function ToSearch() {
 	const [grow, setGrow] = useState(false);
-	const [input, setInput] = useState("");
 	const [visible, setVisible] = useState(false);
-	const [clicked, setClicked] = useState(false);
 
-	const divRef = useRef(null);
+	// selectors style is recommended for performance and when there many components
+	const setCity = useWeatherStore((s) => s.setCity);
+	const fetchWeather = useWeatherStore((s) => s.fetchWeather);
+	const city = useWeatherStore((s) => s.city);
+	
+	const navigate = useNavigate();
 	const pRef = useRef(null);
+
+{/* Search icon */}
+ const svg = <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" 
+ 	viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" 
+ 	strokeLinecap="round" strokeLinejoin="round"> 
+<circle cx="11" cy="11" r="8"/> <line x1="23" y1="23" x2="16.65" y2="16.65"/>
+ 	 </svg>
+
+
 
 	function handleClick() {
  		setGrow(true);
  }
+
+
 
 	useEffect(() => {
 
@@ -136,7 +150,7 @@ function ToSearch() {
  	 	if(grow) {
  	 	timer = setTimeout(() => {
  	 	 setGrow(false);
- 	 	}, 11000); 
+ 	 	}, 20000); 
  	 }
  	 return () => clearTimeout(timer);
  	 }, [grow]); 
@@ -170,11 +184,15 @@ function ToSearch() {
 	}, [grow]); 
 
 
- const svg = <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" 
- 	viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" 
- 	strokeLinecap="round" strokeLinejoin="round"> 
-<circle cx="11" cy="11" r="8"/> <line x1="23" y1="23" x2="16.65" y2="16.65"/>
- 	 </svg>
+
+		const handleKeyDown = async () => {
+				setCity(city);
+				
+				await fetchWeather();
+				navigate('/result');
+		};
+
+
 
 	 return (
 	 	<div className="barXplaceholder">
@@ -183,8 +201,10 @@ function ToSearch() {
 		  width: grow && 'clamp(19rem, 13rem + 20vw, 25rem)',
 		  transition: 'all 1.5s ease',
 		}}>{svg} {grow && <input style={{opacity: visible ? "1" : "0"}} 
-			value={input} onChange={(e) => setInput(e.target.value)} 
-			type="text" placeholder="Search" onClick={() => setClicked(!clicked)}/>}
+			value={city} onChange={(e) => setCity(e.target.value)} 
+			type="text" placeholder="Search" 
+			onKeyDown={(e) => {if (e.key === 'Enter') handleKeyDown(); }}
+				/>}
 			</button>   
 
 		 {/*Placeholder part*/}
@@ -192,7 +212,6 @@ function ToSearch() {
 			<p ref={pRef} style={{ opacity: '1', translateX: '0'}}>
 			Enter a city name</p>
 			 </div> 
-			<ToNavigate grow={grow} clicked={clicked} /> 
 		</div>
 	); 
 }
@@ -202,7 +221,7 @@ function ToSearch() {
 
 function Tree() {
  
-	const { scene } = useGLTF('/models/treescene.glb');
+	const { scene } = useGLTF('/models/treescene.glb');	
 	const treeRef = useRef();
 	const progress = useAppStore((s) => s.progress);
 	const globalClick = useAppStore((s) => s.globalClick);
@@ -257,7 +276,6 @@ function Tree() {
 		// traverse is like forEach but instead of mapping over an array items, it mapps 
 		// over an object descendants (meshes), below, we assin a material to all meshes of Tree
 		scene.traverse((child => {
-			console.log(child.name);
 			if(child.isMesh) {
 				switch(child.name) {
 					case 'Trunk':
@@ -316,8 +334,6 @@ function Tree() {
 					map: appleMap,
 					roughness: 0.4,
 					metalness: 0.1,
-					// clearcoat: 0.5,
-					// clearcoatRoughness: 0.3, 
 					color: '#D20A2E',
 					opacity: 0.5,
 				}) 
@@ -355,8 +371,8 @@ function CameraAnimation() {
 						{
 							delay: 0.95,
 							x: 0, y: 2, z: 15,
-							duration: 11,  // duration also play part in the syncing
-							ease: 'sine.inOut',
+							duration: 12,  // duration also plays part in the syncing
+							ease: 'power1.inOut',  // modified the ease for a better cinematic feeling
 					})
 
 					}
@@ -386,8 +402,9 @@ function CameraAnimation() {
 			shadow-camera-left={-10} shadow-camera-right={10}
 			shadow-camera-top={10} shadow-camera-bottom={-10} shadow-color={'#FFE484'} />
 				<ambientLight intensity={0.6}/>
-			<Suspense fallback={<TextCard />}>
+			
 			<LoadProgress />
+			<Suspense fallback={<TextCard />}>
 			<fogExp2 attach='fog' args={['#cce7ff', 0.023]} />
      		<Tree /> 	
             <Environment preset='sunset' resolution={256} />
@@ -412,9 +429,11 @@ function CameraAnimation() {
 
 		useLayoutEffect(() => {
 			// progress here is the progress of useProgress hook not AppStore progress
-			setProgress(progress);			// updating the progress
+			setProgress(Math.floor(progress));
 
 		}, [progress, setProgress]);
+
+		return null;
 			
 	}
 
@@ -438,8 +457,7 @@ function CameraAnimation() {
 
 
 
-// 'Zustand is a React state management library, that makes sharing data across components more comfy
-// without needing so many props, etc..'
+
 export const useAppStore = create((set) => ({   // creating a store (shared data bucket)
 	count: 0,									// state
 	increaseCount: () => set((state) => ({ count: state.count + 1})),     // action function 
@@ -448,8 +466,7 @@ export const useAppStore = create((set) => ({   // creating a store (shared data
 	inactive: () => set((state) => ({ active: !state.active })),
 	progress: 0,
 	setProgress: (value) => set({ progress: value }),
-	// or when the new value depend on the past value
-	// setProgress: () => set((state) => ({progress: state.progress + pastValue })),
+
 	
 	globalClick: false,
 	hasTriggered: false,						// ensuring no duplication variable
@@ -460,8 +477,10 @@ export const useAppStore = create((set) => ({   // creating a store (shared data
 			hasTriggered: true
 		};
 	}),
-	// start journey button, once clicked it starts 3 or more different things with different delay, 
-	// if clicked again it triggers nothing unless the page reloads
+	city: '',
+	setCity: (value) => set({ city: value }),
+	fetch: false,
+	setFetch: () => set((state) => ({ fetch: !state.fetch }))
 	
 }));
 
@@ -474,33 +493,6 @@ function BackgroundMusic() {
 		const globalClick = useAppStore((s) => s.globalClick);
 		const progress = useAppStore((s) => s.progress);
 
-		// const [ play, setPlay ] = useState(false);
-
-		// useSound is a sound management library, it looks pretyy much like drei's useGLTF
-		// except it has normal braces [] rather than curly ones {}
-		// const [playBg, { stop }] = useSound('/sounds/mainversion.mp3', { 
-		// 	volume: 0.5, loop: true, 
-		// });
-
-		// function handleClick() {   // sound is not yet audible
-		// 	playBg();
-		// }
-		// function handlePause() {
-		// 	if(toStop) {
-		// 	 stop();
-		// 	}
-		// }
-
-		// howler library is for more advanced stuff, and stuff that require more control, like
-		// games and advanced 3D website etc anyway must give it a try later
-
-		// const btnSound = new Howl({
-		// 	src: ['/sounds/btn/.mp3'],
-		// 	volume: 0.7,
-		// 	loop: false
-		// });
-		// btnSound.play();
-
 		const btnSound = new Howl({
 			
 			src: ['/sounds/mainversion.mp3'],
@@ -511,32 +503,9 @@ function BackgroundMusic() {
 		useEffect(() => {
 			if (progress === 100 && globalClick) {
 				btnSound.play();
-				// sound repeat onDoubleClick stop sound
 			 }
 		 }, [globalClick, progress])
 
-		// function toggle() {
-		// 	useEffect(() => {
-		// 		setPlay(!play);
-		// 		if (play) {
-		// 			btnSound.play();
-		// 		} 
-		// 		else {
-		// 			  btnSound.pause();
-		// 		  }
-		// 	}, [play]);
-		// }
-				//  else if(!play && btnSound.play === 'true') {
-				// }
-// {play ? 'Start' : 'Stop'}  temporary commentd 
-	//  return (
-		// <div className='h-fit w-full row-start-4 justify- flex gap-2'> 
-		{/* <button className='row-start-4 justify-self-center' onClick={toggle}> start</button> */}
-		{/* <button className='row-start-4 justify-self-center' onClick={handleStop}> stop</button> */}
-		{/* <button className='row-start-4 justify-self-end' onClick={increaseCount}>increased {count} times</button> */}
-		{/* </div> 										 this is just another way to read value rather than defining 
-														a new value and assigning it useAppStore((state) => state.value) */}
-	// );
 }
 
 
@@ -562,7 +531,7 @@ function BackgroundMusic() {
 						opacity: 0,
 						display: 'none',
 						ease: 'sine.in', // same delay and slightly different ease = synced animation
-						duration: 7.4,
+						duration: 8,
 					})
 				}
 				
@@ -638,22 +607,61 @@ function BackgroundMusic() {
 		);
 	}
 
-	function ToNavigate ({ grow , clicked }) {
-				const navigate = useNavigate(); // to use navigate hook
 
-				useEffect(() => {
-					let naver;
-				if(grow) {
-				 if(clicked) {
-					navigate('/');
-				 }	
-				   else {
-					naver = setTimeout(() => {
-					navigate('/result');
-					}, 2000);
-				   }
-				}
-				return () => clearTimeout(naver);
-				}, [grow, clicked, navigate]);
-		return null;
-} 
+export const useWeatherStore = create((set) => ({ 
+
+	weather: null,  // to store the fetched data
+	loading: false,		// conditioning loading phase
+	error: null,			// to be assigned the error
+	city: '',
+	
+	setCity: (city) => set({ city }),  // shorter way
+	
+	fetchWeather: async() => {
+				// destructing style renders the whole store, it is for small and temproray states (not ideal for performance and when the app grows)
+				const { city } = useWeatherStore.getState();    // to read the city state
+				if(!city) return;
+
+				set({ loading: true, error: null}) // data is about to be fetched
+
+				try {																			
+				// requesting data by city
+				const res = await fetch(`http://api.weatherapi.com/v1/current.json?key=cc57eb8ac62f4b53bfe154654251711&q=${city}&aqi=no`);
+
+				if (!res.ok) throw new Error('city not found 😿');
+				
+				const data = await res.json();
+
+				set({ weather: data, loading: false })
+			} catch (err) {
+				set({ error: err.message, loading: false })  // finish fetching data and assign it weather state
+			}
+		},
+		
+
+		//storing conditional layout data
+	  layoutVariant: () => {
+		// to access we first have to read it if the case is Zustand state
+		const { weather } = useWeatherStore.getState();                     
+
+		if(!weather) return 'default';
+
+		const main = weather.current?.condition?.text.toLowerCase() || '';
+		const temp = weather.current?.temp_c ?? 0;
+	//weather state.main object{}.temp element no [0] because it's not an array
+
+	// Description condition
+		if(main.includes('rain')) return 'Rainy';
+		if(main.includes('cloud')) return 'Cloudy';
+		if(main.includes('sunny') || main.includes('clear')) return 'Clear Sky';
+		if(main.includes('snow')) return 'Snowy';
+
+		// temperature condition
+		if(temp >= 30) return 'hot';
+		if(temp >= 15) return 'mild';
+		if(temp >= 7) return 'cold';
+		if(temp < 7) return 'freezing';
+
+		return 'default';
+	}
+}));

@@ -35,7 +35,7 @@ body {
 	row-gap: clamp(2.8rem,  2.5vw, 3.2rem);
 
 	width: min(100%, 38rem);
-	margin: auto; 			/* to be centered properly */
+	margin: 0 auto; 			/* to be centered properly */
 	height: 100vh;
 	max-height: 88vh;
 	background-image: linear-gradient(#395ADF 30%, #2DD6FD 100%);
@@ -176,9 +176,13 @@ input {
 /* Tailwind Utility Classes... */
 
 @layer utilities {
-    .high-temprature {
+    .high-temp {
         @apply bg-gradient-to-r from-orange-500 via-orange-400 via-yellow-400 via-80% to-gray-300;
     }
+
+	/* .mild-temp {
+		@apply bg-gradient-to-r 
+	} */
 
     .rounded {
         @apply rounded-[1.3rem] sm:rounded-2xl md:rounded-3xl;
@@ -190,10 +194,14 @@ input {
 
     .width {
         @apply w-full max-w-[26rem] min-w-[22rem] sm:max-w-[20rem] sm:min-w-[18rem]
-		md:max-w-[34rem] md:min-w-[26rem] lg:max-w-[36rem]; 
+		md:max-w-[34rem] md:min-w-[26rem] lg:max-w-[36rem] xl:max-w-[40rem];
     }
     .height {
-        @apply h-[14rem] sm:h-[11rem] md:h-[18rem] lg:h-[19rem]; 
+        @apply h-[14rem] sm:h-[11rem] md:h-[18rem] lg:h-[19rem] xl:h-[20rem];
+    }
+
+    .high-temperature {
+        @apply bg-gradient-to-r from-orange-500 via-orange-400 via-yellow-400 via-80% to-gray-300;
     }
 
 	.cardGradient {
