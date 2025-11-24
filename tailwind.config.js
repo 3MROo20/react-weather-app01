@@ -1,4 +1,5 @@
 // tailwind.config.js
+import { transform } from 'style-dictionary';
 import * as tokens from './src/design-tokens/build/tailwind-tokens.js';
 
 // Helper function to convert gradient tokens to CSS gradient strings
@@ -22,6 +23,17 @@ module.exports = {
   },
   theme: {
     extend: {
+
+      keyframes: {
+        rotate: {     /*sun animation */
+          from: { transform: 'rotate(0deg)' },
+          to: { transform: 'rotate(360deg)' },
+        },
+      },
+      animation: {
+        'rotate-slow': 'rotate 20s linear infinite',
+      },
+      
       colors: {
         'button': tokens.ColorButton,
         'mid-day': tokens.ColorMidDay,

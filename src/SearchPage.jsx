@@ -5,21 +5,11 @@ import './index.css';
 import gsap from 'gsap';
 import { Flip } from 'gsap/Flip';
 import * as THREE from 'three';
-import { Canvas, extend, useThree } from '@react-three/fiber';
-import { useGLTF, OrbitControls, useTexture, Box, 
-	  Text3D, Center, Environment, 
-	  GradientTexture, 
-	  MeshTransmissionMaterial,
-	  MeshReflectorMaterial, shaderMaterial,
-	  ContactShadows,
-	  Loader,
-	  Html,
-	  useProgress,
+import { Canvas, useThree } from '@react-three/fiber';
+import { useGLTF, OrbitControls, useTexture, Environment, 
+	  Html, useProgress,
 	  Preload} from '@react-three/drei';
-import { useGSAP } from '@gsap/react';
-import SplitType from 'split-type';
-import useSound from 'use-sound';
-import { Howl, Howler } from 'howler';
+import { Howl } from 'howler';
 import { create } from 'zustand';
 	  gsap.registerPlugin(Flip);
 import clouds from '/src/resultPageAssests/icons/distancedclouds.svg';
@@ -29,7 +19,6 @@ import arrowDown from '/src/resultPageAssests/icons/arrow.svg';
 
 
 export default function SearchPage() {
-	const [ active, setActive ] = useState(false);
 
 
 	return (
@@ -40,20 +29,15 @@ export default function SearchPage() {
 		bg-no-repeat bg-[url(/src/resultPageAssests/images/MagicalCastle.jpg)]">
 		  </div>
 	</div>
-	<div className='paddingContainer h-screen w-screen flex justify-center items-center'>
-	<div className={`container ${active && "grid"}`} 
-		onDoubleClick={() => setActive(!active)}>
+	<div className='container'> 
 	 <Clock/>  
 	 <TheSun />
 	 <ToSearch />
-	 {/* <ToNavigate /> */}
 	 <TreeScene /> 
 	<BackgroundMusic />
 	<Clouds /> 
 	<Arrow />
-	{/* <WeatherData /> */}
 	</div>
-	</div>    {/*paddingConatinaer*/}
 		</>
 
 );
@@ -150,7 +134,7 @@ function ToSearch() {
  	 	if(grow) {
  	 	timer = setTimeout(() => {
  	 	 setGrow(false);
- 	 	}, 20000); 
+ 	 	}, 100000); 
  	 }
  	 return () => clearTimeout(timer);
  	 }, [grow]); 
@@ -198,7 +182,7 @@ function ToSearch() {
 	 	<div className="barXplaceholder">
 	 	 {/*SearchBar part*/}
 		<button className="searchBtn" onClick={handleClick} style={{
-		  width: grow && 'clamp(19rem, 13rem + 20vw, 25rem)',
+		  width: grow && 'clamp(17rem, 13rem + 20vw, 22rem)',
 		  transition: 'all 1.5s ease',
 		}}>{svg} {grow && <input style={{opacity: visible ? "1" : "0"}} 
 			value={city} onChange={(e) => setCity(e.target.value)} 
@@ -256,7 +240,7 @@ function Tree() {
 		const apple05 = scene.getObjectByName('Sphere_5');
 
 		if(progress === 100 && globalClick && apple02) {
-			gsap.to(apple02.position, {   // GSAP can't animate objects directly, it has to animate their .position or .rotation just like in camera example
+			gsap.to(apple02.position, { 
 				delay: 25,
 				y: apple02.position.y -195,    // animating the y position...
 				duration: 2.5, 
@@ -273,8 +257,6 @@ function Tree() {
 			})
 		}
 
-		// traverse is like forEach but instead of mapping over an array items, it mapps 
-		// over an object descendants (meshes), below, we assin a material to all meshes of Tree
 		scene.traverse((child => {
 			if(child.isMesh) {
 				switch(child.name) {
@@ -297,7 +279,6 @@ function Tree() {
 				 transparent: true,
 				 alphaTest: 0.5,
 				 side: THREE.DoubleSide,
-
 				})
 			child.castShadow = true;
 			break
@@ -343,15 +324,54 @@ function Tree() {
 
 			
 	}))
+
+	
 	}, [scene, leafMap, appleMap, trunkMap, gtopMap, gbottomMap, backgroundAMap,
 		backgroundEMap, leafMap2, progress, globalClick]);
 		
 			
-	return <primitive ref={treeRef} 
-	object={scene} 
-	scale={3} 
-	position={[5.2, -4.2, 0]} 
-	rotation={[0, -3.35, -0.045]} />
+
+			// responsive tree position and scale
+			const [treePos, setTreePos] = useState([5.2, -4.2, 0]);
+			const [treeRot, setTreeRot] = useState([0, -3.20, -0.005]);
+			const [treeScale, setTreeScale] = useState(3);
+			// const cameraPos = useAppStore((s) => s.cameraPos);
+
+			{/* Adjust camera position based on screen size */}
+
+			useEffect(() => {
+				function updateTree() {
+					const w = window.innerWidth;
+
+					if (w < 640) { // mobile
+						setTreePos([0, -3, 2.5]);     
+						setTreeRot([0, -3.35, -0.015]);
+						setTreeScale(3.5);             
+						// useAppStore.getState().setCameraPos([0, 8, 2 ]); // closer mobile camera
+					} else if (w < 1024) { // tablet
+						setTreePos([0, -3, 2.5]);
+						setTreeRot([0, -3.35, -0.010]);
+						setTreeScale(3.5);
+						// useAppStore.getState().setCameraPos([0, 8, 2]);
+					} else { // desktop
+						setTreePos([0, -3, 2.5]);
+						setTreeRot([0, -3.35, -0.005]);
+						setTreeScale(3.6);
+						// useAppStore.getState().setCameraPos([0, 8, 2]);
+						
+					}
+				}
+
+				updateTree();
+				window.addEventListener('resize', updateTree);
+				return () => window.removeEventListener('resize', updateTree);
+			}, []);
+
+			return <primitive ref={treeRef} 
+			object={scene} 
+			scale={treeScale} 
+			position={treePos} 
+			rotation={treeRot} />
 
 }
 
@@ -370,9 +390,9 @@ function CameraAnimation() {
 						}, 
 						{
 							delay: 0.95,
-							x: 0, y: 2, z: 15,
-							duration: 12,  // duration also plays part in the syncing
-							ease: 'power1.inOut',  // modified the ease for a better cinematic feeling
+							x: 0, y: 3, z: 15,
+							duration: 13, 
+							ease: 'power1.inOut',  
 					})
 
 					}
@@ -383,12 +403,12 @@ function CameraAnimation() {
 
 
 	function TreeScene() {
-		
+		const cameraPos = useAppStore((s) => s.cameraPos);
 		
 	return (
 		<>
-			<div className='row-start-4 col-span-3 w-full h-[270px]'>
-		<Canvas camera={{ position: [-20, 15, 35], fov:60, near:0.1, far:100}} 
+			<div className='row-start-4 col-span-3 self-end w-full h-[190px] sm:h-[150px] md:h-[190px] lg:h-[200px]'>
+		<Canvas camera={{ position: cameraPos, fov:100, near:0.1, far:100}} 
 		    shadows dpr={[1.5, 2]} onCreated={({ gl }) => {
 		    const isMobile = window.innerWidth < 768;
 			gl.shadowMap.enabled = !isMobile;
@@ -396,19 +416,19 @@ function CameraAnimation() {
 			// for performance and optimization.. taking into consideration mobile devices
 		}} 
 		>
-			<directionalLight color={'#FFE484'} position={[2, 8, 0]} intensity={1.5} castShadow
+			<directionalLight color={'#FFE484'} position={[2, 8, 0]} intensity={3} castShadow
 			shadow-mapSize-width={1024} shadow-mapSize-height={1024} 
 			shadow-camera-near={0.5} shadow-camera-far={500} 
 			shadow-camera-left={-10} shadow-camera-right={10}
 			shadow-camera-top={10} shadow-camera-bottom={-10} shadow-color={'#FFE484'} />
-				<ambientLight intensity={0.6}/>
+				<ambientLight intensity={1.5}/>
 			
-			<LoadProgress />
 			<Suspense fallback={<TextCard />}>
-			<fogExp2 attach='fog' args={['#cce7ff', 0.023]} />
      		<Tree /> 	
-            <Environment preset='sunset' resolution={256} />
 			<Preload all />  {/*to preload all the assests in the background*/}
+			<LoadProgress />
+			<fogExp2 attach='fog' args={['#cce7ff', 0.032]} />
+            {/* <Environment preset='sunset' resolution={256} /> */}
 			</Suspense>
 			<OrbitControls />
 			<CameraAnimation />
@@ -445,9 +465,9 @@ function CameraAnimation() {
 
 	return (
 		<Html fullscreen>
-			<div className='w-full h-fit flex justify-center'> 
-		<div className='w-fit h-fit x-0 px-44 py-4 cardGradient border-8 border-gray-50/80 rounded-xl
-		 font-poppins font-medium text-lg'>Loading... {Math.floor(progress)}%</div>
+			<div className='w-full col-span-1/4 h-fit flex justify-center mt-8 sm:mt-6 md:mt-12'> 
+		<div className='w-fit h-fit x-0 px-20 sm:px-16 md:px-36 lg:px-44 py-2 md:py-4 ml-2 sm:ml-4 md:ml-0 cardGradient border-8 border-gray-50/80 rounded-xl
+		 font-poppins font-medium text-lg sm:text-[1rem]'>Loading... {Math.floor(progress)}%</div>
 		 											{/*  reading the value */}
 			</div>
 		</Html>
@@ -477,10 +497,9 @@ export const useAppStore = create((set) => ({   // creating a store (shared data
 			hasTriggered: true
 		};
 	}),
-	city: '',
-	setCity: (value) => set({ city: value }),
-	fetch: false,
-	setFetch: () => set((state) => ({ fetch: !state.fetch }))
+	
+	cameraPos: [ -20, 15, 35 ],
+	setCameraPos: (cameraPos) => set({ cameraPos })
 	
 }));
 
@@ -489,7 +508,6 @@ export const useAppStore = create((set) => ({   // creating a store (shared data
 
 function BackgroundMusic() {
 		// using the global count state from AppStore
-		// const { count, increaseCount } = useAppStore();
 		const globalClick = useAppStore((s) => s.globalClick);
 		const progress = useAppStore((s) => s.progress);
 
@@ -516,7 +534,7 @@ function BackgroundMusic() {
 		 const [ appear, setAppear ] = useState(false);
 		 const globalClick = useAppStore((s) => s.globalClick);  // initiating globalClick button
 		 const setGlobalClick = useAppStore((s) => s.setGlobalClick);
-
+		 
 			useEffect(() => {
 				// let t;
 				if(progress === 100) { 
@@ -525,9 +543,9 @@ function BackgroundMusic() {
 				if(progress === 100 && globalClick) {
 					gsap.to('#clGroup', {  
 						delay: 1,   // 0.1 difference from tree animation
-						scale: 2.5,
-						y: '1rem',
-						x: '8rem', 
+						scale: 2,
+						// y: '-0.2rem',
+						// x: '0.2rem', 
 						opacity: 0,
 						display: 'none',
 						ease: 'sine.in', // same delay and slightly different ease = synced animation
@@ -559,20 +577,23 @@ function BackgroundMusic() {
 		 
 		 return (
 			<> 
-			<div className='relative w-fill h-fit'>   
+			<div className='relative w-full h-fit'>   
 			     {/* Clouds group */}
 				<img onClick={setGlobalClick} 
 					className=
-					{`absolute bottom-28 left-4 translate-x-16 translate-y-10
+					{`absolute bottom-[3rem] sm:bottom-[1.5rem] md:bottom-[4.2rem] lg:bottom-[3.5rem] 
+					right-24 sm:right-12 md:left-20 lg:left-16 translate-x-full md:translate-x-16 lg:translate-x-20 translate-y-10 
+					size-60 sm:size-48 md:size-64 lg:size-72
+					transition-opacity duration-2000 ease-in
 					 ${appear ? 'opacity-100' : 'opacity-0'} z-50 scale-100`}
 				 src={clouds}
 				 id='clGroup'/>
 			</div> {/*top clooud*/}
 				<img src={cloudMain}  
-				className='absolute w-72 h-fit bottom-1/2 left-1/2 translate-x-[19rem] translate-y-[17rem]
+				className='absolute w-48 sm:w-40 md:w-64 lg:w-72 h-fit bottom-[55%] md:bottom-1/2 left-1/2 translate-x-[19rem] translate-y-[17rem] md:translate-y-[18rem]
 				opacity-60 z-20'
 				id='topCloud'/>
-				<img className='absolute w-40 top-1/2 right-1/2 translate-x-[-19rem] translate-y-[23rem] 
+				<img className='absolute w-32 sm:w-30 md:w-40 top-1/2 md:top-[55%] right-1/2 translate-x-[-19rem] translate-y-[18rem] md:translate-y-[19.5rem]
 				opacity-60 z-10'
 				src={cloudMain}		  
 				id='bottomCloud'/> 
@@ -601,7 +622,9 @@ function BackgroundMusic() {
 
 		return (
 			<div className='relative w-full h-fit'>
-				<img className={`absolute w-12 sm:w-8 md:w-16 bottom-[17rem] left-1/2 opacity-0 ${allowAnimate && 'animate-bounce opacity-100'}`}
+				<img className={`absolute w-12 sm:w-8 md:w-14 lg:w-[3.8rem] bottom-[11rem] sm:bottom-[7.5rem] md:bottom-[13rem] lg:bottom-[14rem]
+				 right-[80%] sm:left-[10%] md:left-[40%] lg:left-[35%]
+				 opacity-0 ${allowAnimate && 'animate-bounce opacity-100'}`}
 				 src={arrowDown}/>
 			</div>
 		);
@@ -626,7 +649,7 @@ export const useWeatherStore = create((set) => ({
 
 				try {																			
 				// requesting data by city
-				const res = await fetch(`http://api.weatherapi.com/v1/current.json?key=cc57eb8ac62f4b53bfe154654251711&q=${city}&aqi=no`);
+				const res = await fetch(`/api/v1/current.json?key=cc57eb8ac62f4b53bfe154654251711&q=${city}&aqi=no`);
 
 				if (!res.ok) throw new Error('city not found 😿');
 				
@@ -639,29 +662,36 @@ export const useWeatherStore = create((set) => ({
 		},
 		
 
-		//storing conditional layout data
-	  layoutVariant: () => {
-		// to access we first have to read it if the case is Zustand state
-		const { weather } = useWeatherStore.getState();                     
-
-		if(!weather) return 'default';
-
-		const main = weather.current?.condition?.text.toLowerCase() || '';
-		const temp = weather.current?.temp_c ?? 0;
-	//weather state.main object{}.temp element no [0] because it's not an array
-
-	// Description condition
-		if(main.includes('rain')) return 'Rainy';
-		if(main.includes('cloud')) return 'Cloudy';
-		if(main.includes('sunny') || main.includes('clear')) return 'Clear Sky';
-		if(main.includes('snow')) return 'Snowy';
-
-		// temperature condition
-		if(temp >= 30) return 'hot';
-		if(temp >= 15) return 'mild';
-		if(temp >= 7) return 'cold';
-		if(temp < 7) return 'freezing';
-
-		return 'default';
-	}
-}));
+		// Separate variants for different cards
+		tempVariant: () => {
+			const { weather } = useWeatherStore.getState();
+			if (!weather) return 'mild';
+			const temp = weather.current?.temp_c ?? 0;
+			if (temp >= 30) return 'hot';
+			if (temp >= 15) return 'mild';
+			if (temp >= 7) return 'cold';
+			if (temp < 7) return 'freezing';
+			return 'mild';
+		},
+		weatherVariant: () => {
+			const { weather } = useWeatherStore.getState(); 
+			if (!weather) return 'Clear Sky'; 
+			const main = weather.current?.condition?.text.toLowerCase() || '';
+			if (main.includes('rain')) return 'Rainy';	 
+			if (main.includes('cloud') || main.includes('mist')) return 'Cloudy';  
+			if (main.includes('fog') || main.includes('overcast')) return 'Foggy';  
+			if (main.includes('sunny') || main.includes('clear')) return 'Clear Sky';   
+			if (main.includes('snow')) return 'Snowy'; 
+			return 'Clear Sky';
+		},
+		timeVariant: () => {
+			const { weather } = useWeatherStore.getState();
+			if (!weather) return 'morning';
+			const timeString = weather.location?.localtime || '';
+			const hour = parseInt(timeString.split(' ')[1]?.split(':')[0], 10);
+			if (hour >= 6 && hour < 12) return 'morning';
+			if (hour >= 12 && hour < 19) return 'noon';
+			if ((hour >= 19 && hour <= 23) || (hour >= 0 && hour < 6)) return 'night';
+			return 'morning';
+		}
+})); 
