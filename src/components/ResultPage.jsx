@@ -1,47 +1,54 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import sunIcon from './resultPageAssests/icons/theSun.svg';
-import windIcon from './resultPageAssests/icons/Wind.svg';
-import humidityIcon from './resultPageAssests/icons/humidity_percentage.svg';
-import skyScrapper from './resultPageAssests/icons/skyscraper.svg';
-import clearSkyIcon from './resultPageAssests/icons/theSun.svg';
-import cloudyIcon from './resultPageAssests/icons/cloudsNsun.svg';
-import foggyIcon from './resultPageAssests/icons/clouds only.svg';
-import rainyIcon from './resultPageAssests/icons/raining clouds.svg';
-import snowyIcon from './resultPageAssests/icons/snowy clouds.svg';
+import sunIcon from '../resultPageAssests/icons/theSun.svg';
+import windIcon from '../resultPageAssests/icons/Wind.svg';
+import humidityIcon from '../resultPageAssests/icons/humidity_percentage.svg';
+import skyScrapper from '../resultPageAssests/icons/skyscraper.svg';
+import clearSkyIcon from '../resultPageAssests/icons/theSun.svg';
+import cloudyIcon from '../resultPageAssests/icons/cloudsNsun.svg';
+import foggyIcon from '../resultPageAssests/icons/clouds only.svg';
+import rainyIcon from '../resultPageAssests/icons/raining clouds.svg';
+import snowyIcon from '../resultPageAssests/icons/snowy clouds.svg';
 import './index.css';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { Flip } from 'gsap/Flip';
 import SplitType from 'split-type';
     gsap.registerPlugin(Flip, useGSAP);
-import { useWeatherStore } from './SearchPage';
+import { useWeatherStore } from './stores';
 import { create } from 'zustand';
+import { useAppStore } from './stores';
 
 
 export default function ResultPage() {
 	const [ nav, setNav ] = useState(false);
 	const navigate = useNavigate();
-	
+	const setHasVisitedSearchPage = useAppStore((s) => s.setHasVisitedSearchPage);
+
 	if(nav) {
 	 navigate('/');
 	}
+
+    function handleClick () {
+        setNav(!nav);
+        setHasVisitedSearchPage(true);
+    }
 
     
 	return (
     <> 
     <div className='relative'>
         <div className='absolute bg-[url(src/resultPageAssests/images/MagicalCastle.jpg)]
-     	 -z-10 bg-center bg-no-repeat bg-cover blur-[0.5px] md:blur-[0.8px] inset-0 h-screen md:min-h-screen py-4 md:py-6 lg:py-28 overflow-hidden'>
+     	 -z-10 bg-center bg-no-repeat bg-cover blur-[0.5px] md:blur-[0.8px] inset-0 h-screen md:min-h-screen py-4 md:py-20 lg:py-28 overflow-hidden'>
         </div>
     </div>
      <div id='glassCover' className='not-italic glass-border bg-gray-50/10 md:bg-gray-50/20 w-[98%] md:w-2/3 m-auto max-w-[35rem]
          min-h-screen rounded-md sm:rounded-lg md:rounded-xl lg:rounded-2xl xl:rounded-3xl -z-10 
-         py-4 md:py-6 lg:py-2 px-0 sm:px-0 md:px-8 lg:px-10 xl:px-12 overflow-hidden containerShadow
+         py-4 md:py-4 lg:py-2 px-0 sm:px-0 md:px-8 lg:px-10 xl:px-12 overflow-hidden containerShadow
          flex justify-center items-center'>
      <div className="flex flex-col gap-4 justify-center items-center">
-       <button className='w-12 h-8 self-end bg-gray-50/50 rounded px-2 py-1 text-sm hover:bg-gray-50/70 transition-colors' onClick={() =>
-		setNav(!nav)}>back</button>
+       <button className='w-12 h-8 self-end bg-gray-50/50 rounded px-2 py-1 text-sm hover:bg-gray-50/70 transition-colors' 
+       onClick={handleClick}>back</button>
 	<TempCard />
 	<StatusCard />
 	<TimeCard />
@@ -56,11 +63,8 @@ export default function ResultPage() {
 export const useLayoutStore = create((set) => ({
     variant: '',
     setVariant: (variant) => set({ variant }),
-    // variantTime; '',
-    // setVariantTime:
-    // variantStatus:
-    // setVariantStatus
 }));
+
 
 const countWords = (text = '') =>
     text
@@ -82,6 +86,7 @@ const chunkConditionText = (text = '') => {
             paired.push(words[i]);
         }
     }
+    // npm i baseline-browser-mapping@latest -D
 
     return paired;
 };
@@ -89,8 +94,6 @@ const chunkConditionText = (text = '') => {
 function TempCard() {
     const weather = useWeatherStore((s) => s.weather);
     const tempVariant = useWeatherStore((s) => s.tempVariant);
-    // using a local variant computed from the weather store to avoid
-    // overwriting a shared layout variant used by other cards
     const variantLocal = tempVariant();
 
     if (!weather) return <p className='center text-3xl'>No data available 😿</p>;
@@ -99,7 +102,6 @@ function TempCard() {
     useEffect(() => {
 
         {/* Temperature card animation */}
-        // changed from gsap.from to gsap.set and gsap.to to ensure that temp card animates properly on re-render
         gsap.set('#MainCard', { y: -80, opacity: 0 });
         gsap.to('#MainCard', {
             y: 0,
@@ -142,7 +144,6 @@ function TempCard() {
         
     }, [weather, tempVariant]) 
 
-    // const textColor = (variantLocal === 'freezing') ? 'text-gray-900' : 'text-white';  not necesseary at the moment
     
 	return (
 
@@ -171,15 +172,15 @@ function TempCard() {
 function StatusCard() {
     const weather = useWeatherStore((s) => s.weather);
     const weatherVariant = useWeatherStore((s) => s.weatherVariant);
-    // setting a local variant instead so this card doesn't overwrite the shared layout variant
     const variantLocal = weatherVariant();
     const [ showIcon, setShowIcon ] = useState(false);
     const conditionTextRaw = weather?.current?.condition?.text ?? '';
     const conditionWordCount = countWords(conditionTextRaw);
     const conditionChunks = chunkConditionText(conditionTextRaw);
     const conditionSizeClass = conditionWordCount > 2
-        ? 'text-[1.2rem] sm:text-xl md:text-[2rem] lg:text-[2rem] leading-tight'
-        : 'text-3xl sm:text-2xl md:text-4xl leading-8';
+        ? 'text-[1.2rem] sm:text-xl md:text-[2rem] lg:text-[2rem] leading-wide'
+        : conditionWordCount  === 1 ? 'text-3xl sm:text-2xl md:text-4xl lg:text-5xl whitespace-pre' : 'text-3xl sm:text-2xl md:text-4xl lg:text-5xl leading-wide'; 
+        
 
     if (!weather) return <p className='center text-3xl'>No data available 😿</p>;
 
@@ -201,13 +202,13 @@ function StatusCard() {
         }
     };
 
+
     useEffect(() => {
         let iconTimer;
-       
 
-        {/* Status card animation */}
-         gsap.set('#StatusCard', { opacity: 0, y: -20 });
-         gsap.to('#StatusCard', {
+        // Status card animation
+        gsap.set('#StatusCard', { opacity: 0, y: -20 });
+        gsap.to('#StatusCard', {
             opacity: 1,
             y: 0,
             ease: 'bounce.out',
@@ -219,7 +220,7 @@ function StatusCard() {
             types: 'words, chars',
         });
 
-        {/* Weather condition text animation */}
+        // Weather condition text animation
         gsap.set(toSplit.words, { y: -12, opacity: 0 });
         gsap.to(toSplit.words, {
             y: 0,
@@ -234,19 +235,19 @@ function StatusCard() {
             setShowIcon(true);
         }, 5000);
 
-        {/* Weather icon animation for Clear Sky variant */}
+        // Weather icon animation for Clear Sky variant
         if (variantLocal === 'Clear Sky') {
-        gsap.set('#weatherIcon', { rotation: 0 });
-        gsap.to('#weatherIcon', {
-            rotation: 360,
-            ease: 'power2.inOut',
-            duration: 9,
-            repeat: -1,
-            yoyo: true,
-        });
+            gsap.set('#weatherIcon', { rotation: 0 });
+            gsap.to('#weatherIcon', {
+                rotation: 360,
+                ease: 'power2.inOut',
+                duration: 9,
+                repeat: -1,
+                yoyo: true,
+            });
         }
 
-        {/* Mini container animation */}
+        // Mini container animation
         gsap.set('#MiniContainer', { opacity: 0 });
         gsap.to('#MiniContainer', {
             opacity: 1,
@@ -269,16 +270,17 @@ function StatusCard() {
              drop-shadow opacity-100 y-0 z-50
 		 	 row-start-1 justify-self-start self-start ml-4 sm:ml-6 md:ml-6 lg:ml-6
 		 	 break-words max-w-[60%] sm:max-w-[55%] md:max-w-[50%]`} id='split'
-             style={{ wordBreak: 'keep-all', textWrap: conditionWordCount > 2 ? 'balance' : undefined }}>
+             style={{wordBreak: 'keep-all', textWrap: conditionWordCount > 2 && 'balance'}}>
                 {conditionChunks.map((chunk, index) => (
-                    <span key={`${chunk}-${index}`} className={conditionWordCount > 2 ? 'whitespace-nowrap' : ''}>
-                        {chunk}{index < conditionChunks.length - 1 ? ' ' : ''}
+                    <span key={`${chunk}-${index}`} className={conditionWordCount > 2 && 'whitespace-nowrap'}>
+                        {chunk}
+                        {(conditionWordCount > 1 && index < conditionChunks.length - 1) ? ' ' : ''} 
                     </span>
                 ))}
             </h1>
 		 <img src={getWeatherIcon()} alt="weather icon"
-		 	className={`row-start-1 justify-self-center self-start ${ variantLocal === 'Clear Sky' ? 'size-16 sm:size-12 md:size-[6rem] lg:size-24 mt-2 ml-4' : variantLocal === 'Rainy' || variantLocal === 'Cloudy' || variantLocal === 'Snowy' || variantLocal === 'Foggy' ? 'size-28 sm:size-24 md:size-[9rem] lg:size-32 mb-4 sm:mb-4 md:mb-2 lg:mb-2 ml-1' : ''}
-             ml-20 sm:ml-8 md:ml-16 lg:ml-20 opacity-0 ${showIcon ? 'opacity-100' : 'opacity-0'} transition-all duration-500 ease-in-out drop-shadow`}
+		 	className={`row-start-1 justify-self-center self-start ${ variantLocal === 'Clear Sky' ? 'size-16 sm:size-12 md:size-[6rem] lg:size-24 mt-2 ml-4' :  variantLocal === 'Rainy' || variantLocal === 'Cloudy' || variantLocal === 'Snowy' || variantLocal === 'Foggy' ? 'size-28 sm:size-24 md:size-[9rem] lg:size-32 mb-4 sm:mb-4 md:mb-2 lg:mb-2 ml-1' : ''}
+             'ml-20 sm:ml-8 md:ml-16 lg:ml-20 ${showIcon ? 'opacity-100' : 'opacity-0'} transition-all duration-500 ease-in-out drop-shadow`}
           id='weatherIcon'></img>      
           <div id='MiniContainer' className='w-auto h-fit max-h-[4.5rem] sm:max-h-[3rem] md:max-h-[6.3rem] lg:max-h-[6.7rem] py-2
            bg-gray-50/50 col-span-2 opacity-100
@@ -309,7 +311,6 @@ function TimeCard() {
     const timeVariant = useWeatherStore((s) => s.timeVariant);
     const weatherVariant = useWeatherStore((s) => s.weatherVariant);
     const tempVariant = useWeatherStore((s) => s.tempVariant);
-    // using local variants to avoid depending on shared variants that might be overriden by other cards
     const variantTimeLocal = timeVariant();
     const variantWeatherLocal = weatherVariant();
     const variantTempLocal = tempVariant();
@@ -385,7 +386,7 @@ function TimeCard() {
 
         const textContrast = (variantTimeLocal === 'night') ? 'text-white' : 'text-gray-900';
 
-        // to set tip based on weather and temp variants
+        // Function to get tip based on weather and temperature and status
         const getTip = () => {
             if (variantWeatherLocal === 'Rainy') return 'take an umbrella!';
             if (variantWeatherLocal === 'Snowy') return 'drive carefully!';
