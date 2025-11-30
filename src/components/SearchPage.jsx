@@ -5,11 +5,12 @@ import gsap from 'gsap';
 import { Flip } from 'gsap/Flip';
 import { Howl } from 'howler';
 	  gsap.registerPlugin(Flip);
-import clouds from '/src/resultPageAssests/icons/distancedclouds.svg';
-import cloudMain from '/src/resultPageAssests/icons/maincloud.svg';
-import arrowDown from '/src/resultPageAssests/icons/arrow.svg';
+import clouds from '/assets/icons/distancedclouds.svg';
+import cloudMain from '/assets/icons/maincloud.svg';
+import arrowDown from '/assets/icons/arrow.svg';
 import ToSearch from './ToSearch';
 import TreeSceneLazy from './TreeSceneLazy';
+import SunnyDay from '/assets/icons/sunny-day.svg';
 import { useAppStore } from './stores';
 
 
@@ -46,7 +47,7 @@ export default function SearchPage() {
 		{/* SearchPage Background  */}
 	<div className='Background relative'>
 		<div className="absolute min-h-screen inset-0 -z-10 blur-[2px] bg-cover bg-center
-		bg-no-repeat bg-[url(/src/resultPageAssests/images/MagicalCastle.jpg)]">
+		bg-no-repeat bg-[url(/assets/images/MagicalCastle.jpg)]">
 		  </div>
 	</div>
 	<div className='container'>
@@ -114,7 +115,7 @@ function TheSun() {
 	}, []);
 
 	return (
-	  <img className="Sun" src="/src/suny-day.png"id="sun" 
+	  <img className="Sun" src={SunnyDay} id="sun"
 	  style={{animation: rotate && 'rotate 15s linear infinite'}}/>
 	);
 }

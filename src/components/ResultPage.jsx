@@ -1,14 +1,14 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import sunIcon from '../resultPageAssests/icons/theSun.svg';
-import windIcon from '../resultPageAssests/icons/Wind.svg';
-import humidityIcon from '../resultPageAssests/icons/humidity_percentage.svg';
-import skyScrapper from '../resultPageAssests/icons/skyscraper.svg';
-import clearSkyIcon from '../resultPageAssests/icons/theSun.svg';
-import cloudyIcon from '../resultPageAssests/icons/cloudsNsun.svg';
-import foggyIcon from '../resultPageAssests/icons/FoggyDay.svg';
-import rainyIcon from '../resultPageAssests/icons/raining clouds.svg';
-import snowyIcon from '../resultPageAssests/icons/snowy clouds.svg';
+import sunIcon from '/assets/icons/theSun.svg';
+import windIcon from '/assets/icons/Wind.svg';
+import humidityIcon from '/assets/icons/humidity_percentage.svg';
+import skyScrapper from '/assets/icons/skyscraper.svg';
+import clearSkyIcon from '/assets/icons/theSun.svg';
+import cloudyIcon from '/assets/icons/cloudsNsun.svg';
+import foggyIcon from '/assets/icons/FoggyDay.svg';
+import rainyIcon from '/assets/icons/raining clouds.svg';
+import snowyIcon from '/assets/icons/snowy clouds.svg';
 import './index.css';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
@@ -38,7 +38,7 @@ export default function ResultPage() {
 	return (
     <> 
     <div className='relative'>
-        <div className='absolute bg-[url(src/resultPageAssests/images/MagicalCastle.jpg)]
+        <div className='absolute bg-[url(/assets/images/MagicalCastle.jpg)]
      	 -z-10 bg-center bg-no-repeat bg-cover blur-[0.5px] md:blur-[0.8px] inset-0 h-screen md:min-h-screen py-4 md:py-20 lg:py-28 overflow-hidden'>
         </div>
     </div>
@@ -400,7 +400,7 @@ function TimeCard() {
 
         return (
         <div id='TempCard' className={`relative width height rounded containerShadow bg-cover bg-center bg-no-repeat overflow-hidden`}
-        style={{backgroundImage: variantTimeLocal === 'morning' ? 'linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.1)), url(/src/resultPageAssests/images/Morning.jpg)' : variantTimeLocal === 'noon' ? 'linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.1)), url(/src/resultPageAssests/images/Noon.jpg)' : variantTimeLocal === 'night' ? 'linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url(/src/resultPageAssests/images/Night.jpg)' : 'linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.1)), url(/src/resultPageAssests/images/Noon.jpg)'}}
+        style={{backgroundImage: variantTimeLocal === 'morning' ? 'linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.1)), url(/assets/images/Morning.jpg)' : variantTimeLocal === 'noon' ? 'linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.1)), url(/assets/images/Noon.jpg)' : variantTimeLocal === 'night' ? 'linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url(/assets/images/Night.jpg)' : 'linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.1)), url(/assets/images/Noon.jpg)'}}
         >
 	 	<div className="absolute inset-0 grid grid-rows-3 gap-0 sm:gap-6 md:gap-0 overflow-hidden
        place-items-center">
