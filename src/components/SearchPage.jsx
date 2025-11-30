@@ -10,7 +10,7 @@ import cloudMain from '/assets/icons/maincloud.svg';
 import arrowDown from '/assets/icons/arrow.svg';
 import ToSearch from './ToSearch';
 import TreeSceneLazy from './TreeSceneLazy';
-import SunnyDay from '/assets/icons/sunny-day.svg';
+import SunnyDay from '/assets/icons/sunnyDay.svg';
 import { useAppStore } from './stores';
 
 
