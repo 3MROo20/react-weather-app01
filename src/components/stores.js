@@ -61,7 +61,7 @@ export const useWeatherStore = create((set) => ({
 
 				try {
 				// requesting data by city
-				const res = await fetch(`/api/v1/current.json?key=cc57eb8ac62f4b53bfe154654251711&q=${city}&aqi=no`);
+				const res = await fetch(`/api/v1/current.json?key=${import.meta.env.VITE_WEATHER_API_KEY}&q=${city}&aqi=no`);
 
 				if (!res.ok) throw new Error('city not found 😿');
 

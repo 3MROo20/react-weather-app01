@@ -298,8 +298,8 @@ function TextCard() {
 
   return (
     <Html fullscreen>
-      <div className='w-full col-span-1/4 h-fit flex justify-center items-center mt-8 sm:mt-6 md:mt-12'>
-        <div className='w-fit h-fit x-0 px-10 sm:px-6 md:px-26 lg:px-36 py-3 md:py- ml-2 sm:ml-4 md:ml-0 cardGradient border-8 border-gray-50/80 rounded-xl
+      <div className='w-full col-span-4 h-fit flex justify-center items-center mt-8 sm:mt-6 md:mt-12'>
+        <div className='w-fit h-fit x-0 px-10 sm:px-6 md:px-26 lg:px-36 py-3 md:py-4 ml-2 sm:ml-4 md:ml-0 cardGradient border-8 border-gray-50/80 rounded-xl
 		font-poppins font-medium text-lg sm:text-[1rem] flex justify-between items-center gap-2 md:gap-4'> Loading ...
 		<div className='size-5 sm:size-3 md:size-6 justify-self-start border border-solid border-gray-900 border-t-transparent rounded-full animate-spin'></div>
 		</div>

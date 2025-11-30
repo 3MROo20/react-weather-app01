@@ -6,7 +6,7 @@ import humidityIcon from '../resultPageAssests/icons/humidity_percentage.svg';
 import skyScrapper from '../resultPageAssests/icons/skyscraper.svg';
 import clearSkyIcon from '../resultPageAssests/icons/theSun.svg';
 import cloudyIcon from '../resultPageAssests/icons/cloudsNsun.svg';
-import foggyIcon from '../resultPageAssests/icons/clouds only.svg';
+import foggyIcon from '../resultPageAssests/icons/FoggyDay.svg';
 import rainyIcon from '../resultPageAssests/icons/raining clouds.svg';
 import snowyIcon from '../resultPageAssests/icons/snowy clouds.svg';
 import './index.css';
@@ -86,7 +86,6 @@ const chunkConditionText = (text = '') => {
             paired.push(words[i]);
         }
     }
-    // npm i baseline-browser-mapping@latest -D
 
     return paired;
 };
@@ -179,9 +178,9 @@ function StatusCard() {
     const conditionChunks = chunkConditionText(conditionTextRaw);
     const conditionSizeClass = conditionWordCount > 2
         ? 'text-[1.2rem] sm:text-xl md:text-[2rem] lg:text-[2rem] leading-wide'
-        : conditionWordCount  === 1 ? 'text-3xl sm:text-2xl md:text-4xl lg:text-5xl whitespace-pre' : 'text-3xl sm:text-2xl md:text-4xl lg:text-5xl leading-wide'; 
+        : conditionWordCount  === 1 ? 'text-4xl sm:text-2xl md:text-4xl lg:text-[2.5rem] whitespace-pre' : 'text-3xl sm:text-2xl md:text-4xl lg:text-[2.5rem] leading-wide'; 
+        const PushCloud = variantLocal === 'Cloudy' && conditionWordCount === 1;
         
-
     if (!weather) return <p className='center text-3xl'>No data available 😿</p>;
 
     // Conditional icon based on weather variant
@@ -279,7 +278,7 @@ function StatusCard() {
                 ))}
             </h1>
 		 <img src={getWeatherIcon()} alt="weather icon"
-		 	className={`row-start-1 justify-self-center self-start ${ variantLocal === 'Clear Sky' ? 'size-16 sm:size-12 md:size-[6rem] lg:size-24 mt-2 ml-4' :  variantLocal === 'Rainy' || variantLocal === 'Cloudy' || variantLocal === 'Snowy' || variantLocal === 'Foggy' ? 'size-28 sm:size-24 md:size-[9rem] lg:size-32 mb-4 sm:mb-4 md:mb-2 lg:mb-2 ml-1' : ''}
+		 	className={`row-start-1 ${ PushCloud ? 'justify-self-end' : 'justify-self-center'} self-start ${ variantLocal === 'Clear Sky' ? 'size-16 sm:size-12 md:size-[6rem] lg:size-24 mt-2 ml-4' :  variantLocal === 'Rainy' || variantLocal === 'Cloudy' || variantLocal === 'Snowy' || variantLocal === 'Foggy' ? 'size-28 sm:size-24 md:size-[9rem] lg:size-32 mb-4 sm:mb-4 md:mb-2 lg:mb-2 ml-1' : ''}
              'ml-20 sm:ml-8 md:ml-16 lg:ml-20 ${showIcon ? 'opacity-100' : 'opacity-0'} transition-all duration-500 ease-in-out drop-shadow`}
           id='weatherIcon'></img>      
           <div id='MiniContainer' className='w-auto h-fit max-h-[4.5rem] sm:max-h-[3rem] md:max-h-[6.3rem] lg:max-h-[6.7rem] py-2
