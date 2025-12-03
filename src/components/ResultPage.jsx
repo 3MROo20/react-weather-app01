@@ -2,13 +2,13 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import sunIcon from '/assets/icons/theSun.svg';
 import windIcon from '/assets/icons/Wind.svg';
-import humidityIcon from '/assets/icons/humidity_percentage.svg';
+import humidityIcon from '/assets/icons/humidityPercentage.svg';
 import skyScrapper from '/assets/icons/skyscraper.svg';
 import clearSkyIcon from '/assets/icons/theSun.svg';
 import cloudyIcon from '/assets/icons/cloudsNsun.svg';
 import foggyIcon from '/assets/icons/FoggyDay.svg';
-import rainyIcon from '/assets/icons/raining clouds.svg';
-import snowyIcon from '/assets/icons/snowy clouds.svg';
+import rainyIcon from '/assets/icons/rainingClouds.svg';
+import snowyIcon from '/assets/icons/snowyClouds.svg';
 import './index.css';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
@@ -55,9 +55,7 @@ export default function ResultPage() {
 	</div>
      </div>
     </>
-
-		
-		);
+    );
 }
 
 export const useLayoutStore = create((set) => ({
@@ -423,3 +421,4 @@ function TimeCard() {
 
     );
 }
+

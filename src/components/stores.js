@@ -43,6 +43,9 @@ export const useAppStore = create((set) => ({   // creating a store (shared data
 }));
 
 
+
+
+
 // Weather Store for managing API integration and weather data
 export const useWeatherStore = create((set) => ({
 
@@ -50,6 +53,7 @@ export const useWeatherStore = create((set) => ({
 	loading: false,		// conditioning loading phase
 	error: null,			// to be assigned the error
 	city: '',
+	isOffline: false,  // to track if we're using offline fallback data
 
 	setCity: (city) => set({ city }),  // shorter way
 
@@ -67,12 +71,15 @@ export const useWeatherStore = create((set) => ({
 
 				const data = await res.json();
 
-				set({ weather: data, loading: false })
+				// Check if this is offline fallback data
+				const isOffline = data.current?.condition?.text?.includes('Offline') || data.isOffline;
+
+				set({ weather: data, loading: false, isOffline })
 			} catch (err) {
 				set({ error: err.message, loading: false })  // finish fetching data and assigning it weather state
 			}
 		},
-
+		
 
 		// derived state - weather condition variants
 		// temprature based variant

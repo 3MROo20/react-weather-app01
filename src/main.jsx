@@ -4,7 +4,16 @@ import './components/index.css'
 import App from './App.jsx'
 
 createRoot(document.getElementById('root')).render(
+  
+
   <StrictMode>
     <App />
   </StrictMode>,
 )
+
+// Registering the service-worker
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/service-worker.js");
+  });
+}

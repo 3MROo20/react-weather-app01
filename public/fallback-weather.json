@@ -1,0 +1,16 @@
+
+{
+    "location": {
+        "name": "Offline Mode",
+        "localtime": "2024-01-01 12:00"
+    },
+    "current": {
+        "temp_c": 25,
+        "condition": {
+            "text": "Offline: Data not available 😿"
+        },
+        "wind_kph": 10,
+        "humidity": 60
+    },
+    "isOffline": true
+}

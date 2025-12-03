@@ -3,9 +3,45 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/assets/icons/AppLogo2.svg" />
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+    <!-- Web App Manifest for PWA -->
+    <link rel="manifest" href="/manifest.json">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#395ADF">
+    <meta name="description" content="A beautiful weather app with a creative dreamy-themed layout and offline support">
     <title>NurzWeaTher</title>
+
+    <!-- Preloading critical assets for offline support -->
+    <!-- SearchPage assets -->
+    <link rel="preload" href="/assets/images/MagicalCastle.jpg" as="image" type="image/jpeg">
+    <link rel="preload" href="/assets/icons/sunnyDay.svg" as="image" type="image/svg+xml">
+    <link rel="preload" href="/assets/icons/distancedClouds.svg" as="image" type="image/svg+xml">
+    <link rel="preload" href="/assets/icons/maincloud.svg" as="image" type="image/svg+xml">
+    <link rel="preload" href="/assets/icons/arrow.svg" as="image" type="image/svg+xml">
+    <link rel="preload" href="/sounds/mainversion.mp3" as="audio" type="audio/mpeg">
+    <link rel="preload" href="/models/treescene.glb" as="fetch" crossorigin="anonymous" type="model/gltf-binary">
+
+    <!-- TreeScene textures -->
+    <link rel="preload" href="/textures/leaves2.jpg" as="image" type="image/jpeg">
+    <link rel="preload" href="/textures/apple.jpg" as="image" type="image/jpeg">
+    <link rel="preload" href="/textures/tree2.jpg" as="image" type="image/jpeg">
+    <link rel="preload" href="/textures/terrain.jpg" as="image" type="image/jpeg">
+    <link rel="preload" href="/textures/mud2.jpg" as="image" type="image/jpeg">
+    <link rel="preload" href="/textures/mud.jpg" as="image" type="image/jpeg">
+
+    <!-- ResultPage assets -->
+    <link rel="preload" href="/assets/icons/theSun.svg" as="image" type="image/svg+xml">
+    <link rel="preload" href="/assets/icons/Wind.svg" as="image" type="image/svg+xml">
+    <link rel="preload" href="/assets/icons/humidityPercentage.svg" as="image" type="image/svg+xml">
+    <link rel="preload" href="/assets/icons/skyscraper.svg" as="image" type="image/svg+xml">
+    <link rel="preload" href="/assets/icons/cloudsNsun.svg" as="image" type="image/svg+xml">
+    <link rel="preload" href="/assets/icons/FoggyDay.svg" as="image" type="image/svg+xml">
+    <link rel="preload" href="/assets/icons/rainingClouds.svg" as="image" type="image/svg+xml">
+    <link rel="preload" href="/assets/icons/snowyClouds.svg" as="image" type="image/svg+xml">
+    <link rel="preload" href="/assets/images/Morning.jpg" as="image" type="image/jpeg">
+    <link rel="preload" href="/assets/images/Noon.jpg" as="image" type="image/jpeg">
+    <link rel="preload" href="/assets/images/Night.jpg" as="image" type="image/jpeg">
   </head>
   <body>
     <div id="root"></div>

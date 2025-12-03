@@ -13,13 +13,61 @@
 }
 
 @layer base {
+	@font-face {
+		font-family: 'Roboto';
+		src: url('/fonts/Roboto/static/Roboto-Regular.ttf') format('truetype');
+		font-weight: 400;
+		font-style: normal;
+		font-display: swap;
+	}
+
+	@font-face {
+		font-family: 'Roboto';
+		src: url('/fonts/Roboto/static/Roboto-Bold.ttf') format('truetype');
+		font-weight: 700;
+		font-style: normal;
+		font-display: swap;
+	}
+	
+	@font-face {
+		font-family: 'Inter';
+		src: url('/fonts/Inter/static/Inter_18pt-Regular.ttf') format('truetype');
+		font-weight: 400;
+		font-style: normal;
+		font-display: swap;
+	}
+
+	@font-face {
+		font-family: 'Inter';
+		src: url('/fonts/Inter/static/Inter_18pt-Bold.ttf') format('truetype');
+		font-weight: 600;
+		font-style: normal;
+		font-display: swap;
+	}
+
+	@font-face {
+		font-family: 'Poppins';
+		src: url('/fonts/Poppins/Poppins-Regular.ttf') format('truetype');
+		font-weight: 400;
+		font-style: normal;
+		font-display: swap;
+	}
+
+	@font-face {
+		font-family: 'Poppins';
+		src: url('/fonts/Poppins/Poppins-Bold.ttf') format('truetype');
+		font-weight: 600;
+		font-style: normal;
+		font-display: swap;
+	}
+
 	body {
 		font-family: 'Roboto', sans-serif;
-		@apply font-thin italic m-0 p-0 overflow-x-hidden overflow-y-auto;
+		@apply italic m-0 p-0 overflow-x-hidden overflow-y-auto;
 		font-size: clamp(2rem, 2rem + 4vw, 3.5rem);
 		background-color: #444;
 		letter-spacing: 0.05rem;
-	
+
 	}
 }
 
@@ -36,6 +84,8 @@
 	.time {
 		grid-column: 1 / 4;
 		@apply w-full text-center justify-self-center self-center sm:self-center md:self-end lg:self-end text-4xl sm:text-3xl md:text-[2.5rem] lg:text-5xl;
+		letter-spacing: 0.1rem;
+
 	}
 
 	.Sun {

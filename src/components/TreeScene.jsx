@@ -21,8 +21,7 @@ function Tree() {
   const setHasApplesFallen = useAppStore((s) => s.setHasApplesFallen);
   const hasVisitedSearchPage = useAppStore((s) => s.hasVisitedSearchPage);
   const three = useThree();
-  const invalidate = three?.invalidate;   // for manual frame invalidation since we're using frameloop='demand'
-  const hasPlayed = useAppStore((s) => s.hasPlayed);
+  const invalidate = three?.invalidate;   // for manual frame invalidation since we're usin='demand'
 
   
   // Loading textures
@@ -114,31 +113,8 @@ function Tree() {
         return () => activeTweens.forEach((t) => t.kill && t.kill());
       });
     });
-  }, [scene, progress, globalClick, invalidate, hasPlayed, hasApplesFallen, setHasApplesFallen, hasVisitedSearchPage]);
+  }, [scene, progress, globalClick, invalidate, hasApplesFallen, setHasApplesFallen, hasVisitedSearchPage]);
 
-
-
-
-
-  // Animation reset Part**
-  // Reset apple positions when animation flag is reset (to match camera/clouds flow)
-  // this approach wasn't wrorking so we replaced it with toggoling hasVisitedSearchPage state -> to be cleaned
-  useEffect(() => {
-    if (!scene || hasApplesFallen) return;
-
-    const apple02 = scene.getObjectByName('Sphere_2');
-    const apple05 = scene.getObjectByName('Sphere_5');
-
-    // Reset apples to their stored original positions
-    if (apple02 && originalApplePositions.current['Sphere_2']) {
-      apple02.position.copy(originalApplePositions.current['Sphere_2']);
-    }
-    if (apple05 && originalApplePositions.current['Sphere_5']) {
-      apple05.position.copy(originalApplePositions.current['Sphere_5']);
-    }
-
-    if (invalidate) invalidate();
-  }, [scene, hasApplesFallen, invalidate]);
 
 
 

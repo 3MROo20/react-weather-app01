@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, use } from 'react';
+	import React, { useState, useRef, useEffect, use } from 'react';
 import { useNavigate } from "react-router-dom";
 import gsap from 'gsap';
 import { useWeatherStore, useAppStore } from './stores';
@@ -26,7 +26,7 @@ function ToSearch() {
 
 
 	function handleClick() {
- 		setGrow(true);
+ 		setGrow(true);   // expanding search button
  }
 
 
@@ -37,7 +37,7 @@ function ToSearch() {
  	 	if(grow) {
  	 	timer = setTimeout(() => {
  	 	 setGrow(false);
- 	 	}, 100000);
+ 	 	}, 60000);   // shrinking expanded search button
  	 }
  	 return () => clearTimeout(timer);
  	 }, [grow]);
@@ -47,7 +47,7 @@ function ToSearch() {
 		if(grow) {
 		Timer = setTimeout(() => {
 		setVisible(true);
-		}, 900);
+		}, 900);	
 	}
 		else {
 			setVisible(false);

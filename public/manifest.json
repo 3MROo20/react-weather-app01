@@ -1,0 +1,21 @@
+{
+  "name": "Nurz Weather",
+  "short_name": "Weather",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0d0d0d",
+  "theme_color": "#0d0d0d",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/assets/icons/IconMob.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/icons/IconDesk.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
