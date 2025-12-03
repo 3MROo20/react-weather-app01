@@ -5,7 +5,7 @@ import gsap from 'gsap';
 import { Flip } from 'gsap/Flip';
 import { Howl } from 'howler';
 	  gsap.registerPlugin(Flip);
-import clouds from '/assets/icons/distancedclouds.svg';
+import clouds from '/assets/icons/distancedClouds.svg';
 import cloudMain from '/assets/icons/maincloud.svg';
 import arrowDown from '/assets/icons/arrow.svg';
 import ToSearch from './ToSearch';
