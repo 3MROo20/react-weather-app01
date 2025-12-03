@@ -1,6 +1,7 @@
 {
   "name": "Nurz Weather",
   "short_name": "Weather",
+  "Description": "A beautiful weather App with a dynamic and fantasy - dreamy like layout and PWA support",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0d0d0d",
