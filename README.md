@@ -1,55 +1,273 @@
-## NurzWeaTher: Immersive Weather App 🌤️
+🌤️ NurzWeather — A Weather App Born From Chaos, Built With Purpose
 
-NurzWeaTher is an innovative weather application that combines real-time weather data with immersive 3D visuals and smooth animations. Unlike traditional weather apps, NurzWeaTher offers an interactive experience where users can explore weather information through a magical, animated environment featuring 3D tree scenes, floating clouds, and dynamic backgrounds that adapt to weather conditions.
+“This project came to life at a time when everything else was collapsing…”
 
-🌟 Key Features
+NurzWeather began as a small idea — a distraction during a difficult moment — but it grew into a transformative journey of learning, resilience, and self-discovery.
 
-- **Immersive 3D Environment**: Experience weather data in a 3D-rendered scene with interactive tree, animated clouds, and a rotating sun.
-- **Real-Time Weather Data**: Get accurate current weather information including temperature, humidity, wind speed, and weather conditions.
-- **Dynamic Animations**: Smooth GSAP-powered animations that respond to user interactions and weather states.
-- **Adaptive Backgrounds**: Background images and colors that change based on time of day and weather conditions.
-- **Interactive Elements**: Click on clouds to trigger animations and background music.
-- **Smart Tips**: Receive personalized weather tips based on current conditions and temperature.
-- **Responsive Design**: Optimized for desktop and mobile devices with Tailwind CSS.
+What started as a simple weather app became a cinematic, animated, immersive experience blending:
 
-✨ What Makes NurzWeather Different
+Design
 
-NurzWeather stands out from typical weather apps by transforming weather information into an engaging, visual experience. Instead of plain text and icons, users navigate through an animated landscape where weather data is presented through dynamic 3D elements and contextual animations. The app features:
+Storytelling
 
-- A living clock that pulses every minute
-- Interactive cloud animations that guide user actions
-- Background music that plays upon interaction
-- Weather-specific visual themes (rainy, cloudy, snowy, etc.)
-- Smooth transitions between search and results pages
+3D art
 
-🔧 Technologies Used
+Engineering
 
-- **Frontend Framework**: React 19 with Vite for fast development and building
-- **3D Graphics**: Three.js and React Three Fiber for 3D scenes and animations
-- **Animation Library**: GSAP for smooth, professional animations
-- **State Management**: Zustand for lightweight and efficient state handling
-- **Routing**: React Router DOM for navigation between pages
-- **Styling**: Tailwind CSS with custom design tokens for responsive design
-- **Audio**: Howler.js for background music and sound effects
-- **Build Tools**: Vite, ESLint, PostCSS, and Style Dictionary for design system management
+Emotion
 
-🎨 Design Tools
+⭐️ Features
+🌐 Installable Progressive Web App (PWA)
 
-- **Figma**: For UI/UX design and prototyping
-- **Spline 3D**: For creating and editing 3D models and scenes
-- **Blender**: For advanced 3D modeling and texturing
+NurzWeather is a fully installable PWA:
 
-## How to Use It 
+✔️ Add to home screen on mobile & desktop
 
-1. **Landing Page**: Upon opening the app, you'll see an immersive scene with a 3D tree, animated sun, and floating clouds. The real-time clock displays the current time.
+✔️ Works offline after first load
 
-2. **Search for Weather**: Click on the clouds or use the search interface to input a city name. The app will fetch current weather data for your location.
+✔️ Custom icons, manifest & splash screens
 
-3. **View Results**: Navigate to the results page to see detailed weather information presented through animated cards:
-   - **Temperature Card**: Shows current temperature, "feels like" temperature, and high/low ranges with color-coded backgrounds
-   - **Weather Status Card**: Displays weather condition with animated icons and additional metrics like wind speed and humidity
-   - **Time & Location Card**: Shows current date, time, location, and personalized weather tips
+✔️ Service worker caching
 
-4. **Interactive Elements**: Click on various elements to trigger animations and explore the immersive environment.
+✔️ Fast & lightweight
 
-5. **Navigation**: Use the back button to return to the search page and explore different locations.
+✔️ Native app-like experience
+
+![Desktop PWA Showcase](src/assets/Portiflio/DesktopShowcase(PWA).png)
+![Mobile PWA Showcase](src/assets/Portiflio/MobileShowcase(PWA).jpg)
+
+
+🎨 Immersive Fantasy Weather UI
+
+Animated 3D landscape
+
+Cinematic camera movement
+
+Cloud animations
+
+Falling apple physics
+
+Soft atmospheric music
+
+A UI that feels alive, not static
+
+
+📊 Dynamic Weather System
+
+Powered by real API data:
+
+Temperature card with adaptive gradients
+
+Dynamic typography & layout
+
+Weather condition visuals
+
+Morning / afternoon / night modes
+
+Fully responsive and optimized
+
+
+⚡️ High Performance
+
+Code splitting
+
+Lazy loading
+
+Compressed assets
+
+Optimized GLTF pipeline
+
+Clean, maintainable architecture
+
+
+🎯 Mission
+
+I’ve always been fascinated by the immersive interfaces found in games and animated worlds — experiences that feel alive.
+
+So I set out to create:
+
+A weather app that doesn’t just show information —
+but tells a story.
+
+I wanted NurzWeather to solve a real problem and evoke emotion.
+Something magical enough that a user might forget they're looking at a weather report.
+
+
+✨ How It Started
+
+For years I explored different fields:
+
+C++
+
+Python
+
+Blender
+
+Digital art
+
+Design
+
+But I couldn’t decide where I fit, is it Engineering? Design? Art?
+
+Then one idea clicked:
+
+Why not blend everything together?
+
+I began with paper sketches → moved to Figma → then built it in React + Tailwind.
+
+
+🌳 The 3D Era Begins
+
+I discovered Spline and started modeling:
+
+Perfume bottle
+
+Robot
+
+Realistic apple tree
+
+Leaf with custom materials
+
+![Perfume Bottle](src/assets/Portiflio/PerfumeBottle.png)
+![Robot 1](src/assets/Portiflio/Robot1.png)
+![Robot 2](src/assets/Portiflio/Robot2.png)
+![Robot 3](src/assets/Portiflio/Robot3.png)
+![Tree 3D](src/assets/Portiflio/Tree3D.png)
+![Leaf 1](src/assets/Portiflio/Leaf1.png)
+![Leaf 2](src/assets/Portiflio/Leaf2.png)
+
+Importing them into React became a boss fight:
+
+the GLTF broke, Materials failed, Textures refused to load...
+
+![Broken Material 1](src/assets/Portiflio/BrokenMaterial1.png)
+![Broken Material 2](src/assets/Portiflio/BrokenMaterial2.png)
+![Broken Material 3](src/assets/Portiflio/BrokenMaterial3.png)
+![Broken Material 4](src/assets/Portiflio/BrokenMaterial4.png)
+
+
+It felt endless — but solving this taught me how to think like an engineer.
+
+
+🎬 Animation, Storytelling & System Architecture
+
+Once the 3D scene stabilized, the magic began:
+
+GSAP animations
+
+Zustand global state
+
+Cinematic intro sequence
+
+Cloud transitions
+
+Camera zoom
+
+Apple fall physics
+
+Music syncing
+
+One tap triggers four synchronized events — something I’m truly proud of.
+
+
+🌤️ The App
+1. Search Page
+
+Live clock
+
+Expanding search bar
+
+Animated 3D fantasy landscape
+
+Cinematic camera reveal
+
+Soft atmospheric music
+
+![Search Page Desktop](src/assets/Portiflio/SearchPageDesk.png)
+![Search Page Mobile](src/assets/Portiflio/SearchPageMob.jpg)
+
+2. Results Page
+
+Built entirely on real API data:
+
+Temperature card (dynamic styles)
+
+Weather condition visuals
+
+Morning/afternoon/night modes
+
+Adaptive layout + typography
+
+Smooth transitions
+
+![Result Page Desktop](src/assets/Portiflio/ResultPageDesk.png)
+![Result Page Mobile](src/assets/Portiflio/ResultPageMob.jpg)
+
+🖥️ Demo (Desktop)
+<video width="600" controls> <source src="src/assets/Portiflio/DesktopLiveDemo.mp4" type="video/mp4" /> </video>
+📱 Demo (Mobile)
+<video width="300" controls> <source src="src/assets/Portiflio/MobileLiveDemo.mp4" type="video/mp4" /> </video>
+
+🧰 Tech Stack
+
+🎨 Design & 3D
+
+Figma
+
+Spline 3D
+
+🖥️ Frontend
+
+React.js
+
+Vite
+
+React Router
+
+TailwindCSS
+
+HTML 
+
+CSS
+
+JavaScript
+
+🤖 3D & Animation
+
+Three.js
+
+React Three Fiber
+
+GSAP
+
+🎧 Audio
+
+Howler.js
+
+🔧 Other
+
+Zustand
+
+WeatherAPI
+
+Git
+
+ESLint
+
+
+🌱 Lessons, Identity & Final Words
+
+This project helped me discover who I am:
+
+**A creative front-end developer blending design, storytelling, and engineering.
+
+It showed me what I’m capable of:
+
+Taking a simple thought, And turning it into a polished, immersive, living experience
+
+_And it reminded me — and hopefully reminds you — that even during difficult times, creation can be a source of meaning —
+and from collapse, something beautiful can grow._
+
+🚀 Live Demo
+
+👉 https://nurzweather.vercel.app/
